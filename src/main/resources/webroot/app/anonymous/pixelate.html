@@ -1,0 +1,64 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        匿名化
+    </h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div id="container" class="container">
+        <div class="row-fluid">
+            <div class="row">
+                <div class="col-xs-10">
+                    <!--action="http://demo.pixelate.terapp.com/demo/#" method="post"-->
+                    <form id="upload-form" role="form" action="http://demo.pixelate.terapp.com/demo/#" method="post" class="dropzone dz-clickable">
+                        <div class="dz-default dz-message">
+                            <span>上传文件</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm-6 upload-side">
+                <div id="upload-images"></div>
+            </div>
+        </div>
+    </div>
+    <input type="file" multiple="multiple" class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;">
+</section>
+<!-- /.content -->
+<!--<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12 text-center">
+            <div class="col-sm-6">
+                <h2>匿名化</h2>
+
+                &lt;!&ndash;<div class="bs-example">
+                    <a href="#" onclick="Main.usagePixelate('../../app/anonymous/report.jpg'); return false;" class="btn btn-default pull-right">点这里</a></p>
+                </div>&ndash;&gt;
+
+
+                <div class="col-sm-16 upload-side">
+                    <div id="upload-images"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>-->
+<script type="text/javascript" src="assets/pixelate/Blob.js"></script>
+<script type="text/javascript" src="assets/pixelate/canvas-toBlob.js"></script>
+<script type="text/javascript" src="assets/pixelate/dropzone.js"></script>
+<script type="text/javascript" src="assets/pixelate/FileSaver.js"></script>
+<script type="text/javascript" src="assets/pixelate/pixelate.js"></script>
+<script type="text/javascript" src="assets/pixelate/custom.js"></script>
+
+<link rel="stylesheet" href="assets/pixelate/dropzone.css" />
+<link rel="stylesheet" href="assets/pixelate/pixelate.css">
+
+<!--<script type="text/javascript">
+
+    window.onload=function(){
+        Main.usagePixelate('../../app/anonymous/report.jpg');
+    }
+
+</script>-->

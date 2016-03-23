@@ -1,0 +1,43 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        用户管理
+    </h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">用户列表</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>用户类型</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user in users">
+                            <td>{{user.USERNAME}}</td>
+                            <td>{{user.ROLE}}</td>
+                            <td>
+                                <a ng-click="delete(user)" class="btn btn-danger">删除</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!--<tm-pagination conf="paginationConf"></tm-pagination>-->
+                    <a class="btn btn-primary" href="#/users/new">添加用户</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->

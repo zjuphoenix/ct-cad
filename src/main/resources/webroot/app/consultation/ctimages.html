@@ -1,0 +1,57 @@
+<style>
+    .table{
+        table-layout: fixed;
+    }
+    .datahide{
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+</style>
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        CT图像
+    </h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">CT图像列表</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>CT类型</th>
+                            <th>CT诊断</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="ctImage in ctImages">
+                            <td>{{ctImage.id}}</td>
+                            <td>{{ctImage.type}}</td>
+                            <td class="datahide">{{ctImage.diagnosis}}</td>
+                            <td>
+                                <a class="btn btn-success" href="#/record/{{ctImage.id}}">病历</a>
+                                <a ng-if="main.isPermitted('cad') && isLiver(ctImage.type)" class="btn btn-info" ng-click="goCAD(ctImage)">辅助诊断</a>
+                                <a ng-if="main.isPermitted('cad') && isLung(ctImage.type)" href="#/lung/{{ctImage.file}}" class="btn btn-info">肺部辅助诊断</a>
+                                <a ng-if="main.isPermitted('delete_ct')" class="btn btn-danger" ng-click="deleteCT(ctImage.id)">删除</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <tm-pagination conf="paginationConf"></tm-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->

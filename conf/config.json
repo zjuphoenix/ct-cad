@@ -1,0 +1,7 @@
+{
+  "web.server.port" : 8080,
+  "algorithm.server.port" : 8081,
+  "db.url" : "jdbc:sqlite:db/zhuojian",
+  "db.driver_class" : "org.sqlite.JDBC",
+  "upload.path" : "upload"
+}

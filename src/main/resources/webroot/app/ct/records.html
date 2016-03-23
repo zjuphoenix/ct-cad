@@ -1,0 +1,43 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+
+            <div class="page-header">
+                <h2>
+                    CT数据记录
+                </h2>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>时间</th>
+                    <th>简要描述</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id = "tbody">
+                    <tr ng-repeat="record in ct">
+                        <td>{{record.id}}</td>
+                        <td>{{record.date}}</td>
+                        <td>{{record.desc}}</td>
+                        <td>
+                            <a href="#/images/{{record.id}}" >查看整套CT图像</a>
+                            &nbsp; &nbsp;&nbsp;
+                            <a href="#" >删除</a>
+                            <br />
+                            <a href="#" >查看已分割的图像</a>
+                            <a href="#" >病灶检测</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="pagemanage">
+                <a href="#"><span>第一页</span></a>
+                <span>上一页</span>
+                <a href="#"><span>下一页</span></a>
+                <a href="#"><span>最后一页</span></a>
+            </div>
+        </div>
+    </div>
+</div>

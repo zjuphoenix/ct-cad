@@ -1,0 +1,209 @@
+<!doctype html>
+<html ng-app="ct">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>CT</title>
+
+    <!-- bootstrap -->
+    <!--<link href="assets/css/bootstrap/bootstrap.css" rel="stylesheet"/>
+    <link href="assets/css/bootstrap/bootstrap-responsive.css" rel="stylesheet"/>
+    <link href="assets/css/bootstrap/bootstrap-overrides.css" type="text/css" rel="stylesheet"/>-->
+    <!--<link href="assets/css/bootstrap.min.css" rel="stylesheet"/>-->
+    <link href="assets/template/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="assets/css/dividepage.css" rel="stylesheet"/>
+
+    <!--template start-->
+    <!--图标-->
+    <!--<link rel="stylesheet" href="assets/template/dist/css/font-awesome.min.css">-->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">-->
+    <link rel="stylesheet" href="assets/template/dist/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">-->
+    <link rel="stylesheet" href="assets/template/dist/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="assets/template/dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="assets/template/dist/css/skins/_all-skins.min.css">
+    <!-- iCheck
+    <link rel="stylesheet" href="assets/template/plugins/iCheck/flat/blue.css">
+    &lt;!&ndash; Morris chart &ndash;&gt;
+    <link rel="stylesheet" href="assets/template/plugins/morris/morris.css">
+    &lt;!&ndash; jvectormap &ndash;&gt;
+    <link rel="stylesheet" href="assets/template/plugins/jvectormap/jquery-jvectormap-1.2.2.css">
+    &lt;!&ndash; Date Picker &ndash;&gt;
+    <link rel="stylesheet" href="assets/template/plugins/datepicker/datepicker3.css">
+    &lt;!&ndash; Daterange picker &ndash;&gt;
+    <link rel="stylesheet" href="assets/template/plugins/daterangepicker/daterangepicker-bs3.css">
+    &lt;!&ndash; bootstrap wysihtml5 - text editor &ndash;&gt;
+    <link rel="stylesheet" href="assets/template/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">-->
+
+    <!--template end-->
+
+
+    <!--<script src="assets/js/jquery.min.js"></script>-->
+    <script src="assets/js/jquery-1.9.1.js"></script>
+
+    <!-- scripts -->
+    <!--<script src="http://code.jquery.com/jquery-latest.js"></script>-->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery-ui-1.10.2.custom.min.js"></script>
+
+    <script src="assets/js/angular.min.js"></script>
+    <script src="assets/js/angular-ui-router.min.js"></script>
+    <script src="assets/js/angular-storage.js"></script>
+    <script src="assets/js/angular-animate.min.js"></script>
+    <script src="assets/js/angular-touch.min.js"></script>
+    <!--<script src="assets/js/angular-file-upload.js"></script>-->
+    <!--<script src="assets/js/ng-flow-standalone.js"></script>-->
+    <script src="assets/js/ng-file-upload-shim.js"></script>
+    <script src="assets/js/ng-file-upload.js"></script>
+    <script src="assets/js/tm.pagination.js"></script>
+
+</head>
+<body ng-controller="MainCtrl as main" class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <header class="main-header">
+        <!-- Logo -->
+        <a href="#/consultation" class="logo">
+            <!-- mini logo for sidebar mini 50x50 pixels -->
+            <span class="logo-mini"><b>CT</b></span>
+            <!-- logo for regular state and mobile devices -->
+            <span class="logo-lg"><b>CT图像系统</b></span>
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top" role="navigation">
+            <!-- Sidebar toggle button-->
+            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only">Toggle navigation</span>
+            </a>
+
+            <!-- user -->
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <li ng-if="main.currentUser" class="dropdown user user-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <img src="assets/template/dist/img/user2-160x160.jpg" class="user-image" alt="User Image">
+                            <span class="hidden-xs">{{main.currentUser.username}}</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <!-- User image -->
+                            <!--<li class="user-header">
+                                <img src="assets/template/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+
+                                <p>
+                                    Alexander Pierce - Web Developer
+                                    <small>Member since Nov. 2012</small>
+                                </p>
+                            </li>-->
+                            <!-- Menu Body -->
+                            <!--<li class="user-body">
+                                <div class="row">
+                                    <div class="col-xs-4 text-center">
+                                        <a href="#">Followers</a>
+                                    </div>
+                                    <div class="col-xs-4 text-center">
+                                        <a href="#">Sales</a>
+                                    </div>
+                                    <div class="col-xs-4 text-center">
+                                        <a href="#">Friends</a>
+                                    </div>
+                                </div>
+                                &lt;!&ndash; /.row &ndash;&gt;
+                            </li>-->
+                            <!-- Menu Footer-->
+                            <li class="user-footer">
+                                <!--<div class="pull-left">
+                                    <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                </div>
+                                <div class="pull-right">
+                                    <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                                </div>-->
+                                <div>
+                                    <a ng-click="main.logout()" class="btn btn-default btn-flat">登出</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu">
+                <li class="header">导航</li>
+                <li ng-if="main.isPermitted('ct')" class="active">
+                    <a href="#/consultation">
+                        <i class="fa fa-fw fa-object-group"></i> <span>会诊记录</span>
+                    </a>
+                </li>
+                <li ng-if="main.isPatient()">
+                    <a href="#/records/{{main.currentUser}}">
+                        <i class="fa fa-fw fa-object-group"></i> <span>病历记录</span>
+                    </a>
+                </li>
+                <li ng-if="main.isAdminOrDoctor()">
+                    <a href="#/records">
+                        <i class="fa fa-fw fa-object-group"></i> <span>病历记录</span>
+                    </a>
+                </li>
+                <li ng-if="main.isPermitted('upload')" class="treeview">
+                    <a href="#">
+                        <i class="fa fa-fw fa-file-image-o"></i>
+                        <span>文件上传</span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </a>
+                    <ul class="treeview-menu">
+                        <li><a href="#/upload"><i class="fa fa-circle-o"></i>单文件上传</a></li>
+                        <li><a href="#/uploadFiles"><i class="fa fa-circle-o"></i>多文件上传</a></li>
+                    </ul>
+                </li>
+                <li ng-if="main.isPermitted('anonymous')">
+                    <a href="#/pixelate">
+                        <i class="fa fa-fw fa-tags"></i> <span>匿名化</span>
+                    </a>
+                </li>
+                <li ng-if="main.isPermitted('manage_user')">
+                    <a href="#/users">
+                        <i class="fa fa-fw fa-user"></i> <span>用户管理</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" style="padding-bottom: 100px">
+        <div ui-view></div>
+        <script src="app/app.js"></script>
+        <!--<script src="app/ct/ct.js"></script>-->
+        <script src="app/ct/area.js"></script>
+        <script src="app/upload/upload.js"></script>
+        <script src="app/consultation/consultation.js"></script>
+        <script src="app/consultation/record.js"></script>
+        <script src="app/anonymous/anonymous.js"></script>
+        <script src="app/auth/auth.js"></script>
+        <script src="app/user/user.js"></script>
+        <script src="app/record/records.js"></script>
+    </div>
+    <!-- /.content-wrapper -->
+    <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+            <b>Version</b> 1.0.0
+        </div>
+        <strong>Copyright &copy; 2015-2016 <a href="http://almsaeedstudio.com">Zhejiang University</a>.</strong> All rights
+        reserved.
+    </footer>
+</div>
+<!-- ./wrapper -->
+<script src="assets/template/dist/js/app.min.js"></script>
+</body>
+</html>
+

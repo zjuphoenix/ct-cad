@@ -1,0 +1,113 @@
+<link rel="stylesheet" href="assets/Jcrop/css/jquery.Jcrop.css" type="text/css"/>
+<script src="assets/Jcrop/js/jquery.Jcrop.js"></script>
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">CT图像</h3>
+                </div>
+                <div class="box-body">
+                    <img alt="[Jcrop Example]" src="{{myImage}}" id="target" class="img-polaroid" />
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">辅助诊断</h3>
+                </div>
+                <div class="box-body">
+                    <div class="alert alert-info">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <h4>
+                            提示!
+                        </h4>划取疑似病变区域并点击智能分析按钮.
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <button class="btn btn-large btn-success" type="button" ng-click="predictLesionType();">
+                                智能分析
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-large btn-success" type="button" ng-click="addFeatureData();">确诊入库
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            分析结果：<input ng-model="result">
+                        </div>
+                        <div class="col-md-6" ng-bind="addFeatureResult"></div>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <!-- BAR CHART -->
+            <div class="box box-success">
+                <div class="box-header with-border">
+                    <h3 class="box-title">病历记录</h3>
+                </div>
+                <div class="box-body">
+                    <div class="col-md-12">
+                        <div class="col-md-4">
+                            会诊编号：{{consultationId}}
+                        </div>
+                        <div class="col-md-4">
+                            CT编号：{{id}}
+                        </div>
+                        <div class="col-md-4">
+                            CT类型：{{type}}
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <textarea style="width: 90%" class="form-control" rows="5" ng-model="diagnosis">
+                            {{diagnosis}}
+                        </textarea>
+                    </div>
+
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <button class="btn btn-large btn-success" type="button" ng-click="updateDiagnosis()">更新病历
+                        </button>
+                    </div>
+                    <div class="col-md-4"></div>
+
+                    <div class="col-md-4"></div>
+                    <div class="col-md-12">
+                        {{status}}
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+    </div>
+</section>
+<!--
+<div class="container slider">
+    <img src="{{myImage}}" id="target" alt="[Jcrop Example]" />
+
+    &lt;!&ndash; This is the form that our event handler fills &ndash;&gt;
+    <form id="coords" class="coords">
+        <div class="inline-labels">
+            <label>X1 <input type="text" size="4" id="x1" name="x1" /></label>
+            <label>Y1 <input type="text" size="4" id="y1" name="y1" /></label>
+            <label>X2 <input type="text" size="4" id="x2" name="x2" /></label>
+            <label>Y2 <input type="text" size="4" id="y2" name="y2" /></label>
+            <label>W <input type="text" size="4" id="w" name="w" /></label>
+            <label>H <input type="text" size="4" id="h" name="h" /></label>
+        </div>
+    </form>
+    <div class="result">
+        <a ng-click = "predictLesionType();">病灶识别</a>
+        <div>
+            {{result}}
+        </div>
+    </div>
+</div>-->
