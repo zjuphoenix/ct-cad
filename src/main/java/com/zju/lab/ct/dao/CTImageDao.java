@@ -97,7 +97,7 @@ public class CTImageDao {
                             }
                             conn.update("delete from ct where id = "+id, updateResultAsyncResult -> {
                                 if (updateResultAsyncResult.succeeded()){
-                                    responseMsgHandler.handle(new ResponseMsg(HttpCode.OK, "delete ct success!"));
+                                    responseMsgHandler.handle(new ResponseMsg("delete ct success!"));
                                 }
                                 else{
                                     LOGGER.error("delete ctimage by id {} failed!", id);
@@ -216,7 +216,7 @@ public class CTImageDao {
             conn.updateWithParams(sql, params, insertResult -> {
                 if (insertResult.succeeded()) {
                     LOGGER.info("update ct success!");
-                    responseMsgHandler.handle(new ResponseMsg(HttpCode.OK, "update ct diagnosis success!"));
+                    responseMsgHandler.handle(new ResponseMsg("update ct diagnosis success!"));
                 } else {
                     LOGGER.error("update ct failed!");
                     responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, insertResult.cause().getMessage()));

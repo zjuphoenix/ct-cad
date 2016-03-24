@@ -4,12 +4,9 @@ import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
 import com.zju.lab.ct.dao.CTImageDao;
-import com.zju.lab.ct.model.CTImage;
-import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.utils.ResponseUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -28,33 +25,26 @@ public class CTImageHandler {
         this.ctImageDao = ctImageDao;
     }
 
-    @RouteMapping(method = RouteMethod.GET, value = "/:id")
+    /**
+     * url: /api/ct/data/:recordId
+     * GET
+     * 根据recordId获取所有CT图像
+     * 返回类型JsonObject key:{ct,count}
+     * @return
+     */
+    @RouteMapping(method = RouteMethod.GET, value = "/data/:recordId")
     public Handler<RoutingContext> getCTImages(){
         return  ctx -> {
-            int id = Integer.parseInt(ctx.request().getParam("id"));
-            ctImageDao.getCTImages(id, result -> {
-                JsonArray cts = new JsonArray();
-                if (result != null) {
-                    for (CTImage ctImage : result) {
-                        JsonObject obj = new JsonObject();
-                        obj.put("id", ctImage.getId());
-                        obj.put("type", ctImage.getType());
-                        obj.put("file", ctImage.getFile());
-                        obj.put("diagnosis", ctImage.getDiagnosis());
-                        obj.put("consultationId", ctImage.getConsultationId());
-                        cts.add(obj);
-                    }
-                }
+            int recordId = Integer.parseInt(ctx.request().getParam("recordId"));
+            ctImageDao.getCTImages(recordId, result -> {
                 HttpServerResponse response = ctx.response();
-                response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
-                response.setChunked(true);
-                response.end(cts.encode());
+                ResponseUtil.responseContent(response, result);
             });
         };
     }
 
     /**
-     * /api/ct/:id
+     * url: /api/ct/:id
      * DELETE
      * 根据id删除CT图像
      * @return
@@ -71,6 +61,8 @@ public class CTImageHandler {
     }
 
     /**
+     * url: /api/ct/:id
+     * GET
      * 根据id获取一条CT数据
      * @return
      */
@@ -85,47 +77,42 @@ public class CTImageHandler {
         };
     }
 
-    @RouteMapping(method = RouteMethod.POST, value = "/record/updateDiagnosis")
+    /**
+     * url: /api/ct
+     * PUT
+     * 更新CT图像诊断结果
+     * @return
+     */
+    @RouteMapping(method = RouteMethod.PUT)
     public Handler<RoutingContext> updateDiagnosis(){
         return  ctx -> {
             JsonObject data = ctx.getBodyAsJson();
             int id = data.getInteger("id");
             String diagnosis = data.getString("diagnosis");
-            CTImage ctImage = new CTImage();
-            ctImage.setId(id);
-            ctImage.setDiagnosis(diagnosis);
-            ctImageDao.updateCTImage(ctImage, responseMsg -> {
+            ctImageDao.updateCTImage(id, diagnosis, responseMsg -> {
                 HttpServerResponse response = ctx.response();
-                response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
-                response.setChunked(true);
-                response.setStatusCode(responseMsg.getCode().getCode()).end(responseMsg.getContent());
+                ResponseUtil.responseContent(response, responseMsg);
             });
         };
     }
 
-    @RouteMapping(method = RouteMethod.POST, value = "/ct/page")
+    /**
+     * url: /api/ct
+     * POST
+     * 根据recordId获取CT图像分页数据
+     * 返回类型JsonObject key:{ct,count}
+     * @return
+     */
+    @RouteMapping(method = RouteMethod.POST)
     public Handler<RoutingContext> getCTImagesByPage(){
         return  ctx -> {
             JsonObject data = ctx.getBodyAsJson();
-            int id = data.getInteger("id");
+            int recordId = data.getInteger("recordId");
             int pageIndex = data.getInteger("pageIndex");
             int pageSize = data.getInteger("pageSize");
-            ctImageDao.getCTImagesByPage(id, pageIndex, pageSize, result -> {
+            ctImageDao.getCTImagesByPage(recordId, pageIndex, pageSize, result -> {
                 HttpServerResponse response = ctx.response();
-                response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
-                response.setChunked(true);
-                if (result != null) {
-                    /*int count = result.getInteger("count");
-                    JsonArray cts = new JsonArray();
-                    List<JsonObject> array = result.getJsonArray("ct").getList();
-                    for (JsonObject obj : array) {
-                        cts.add(obj);
-                    }*/
-                    response.end(result.encode());
-                }
-                else{
-                    response.setStatusCode(HttpCode.NULL_CONTENT.getCode()).end();
-                }
+                ResponseUtil.responseContent(response, result);
             });
         };
     }

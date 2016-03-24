@@ -5,18 +5,15 @@ import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
 import com.zju.lab.ct.dao.CTImageDao;
 import com.zju.lab.ct.model.CTImage;
-import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.utils.AppUtil;
+import com.zju.lab.ct.utils.ResponseUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.User;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,10 +54,9 @@ public class UploadHandler {
                 LOGGER.info("upload path : {}", path);
                 ctImages.add(ctImage);
             }
-            ctImageDao.addCTImages(ctImages, responseMsg -> {
+            ctImageDao.addCTImages(username, ctImages, responseMsg -> {
                 HttpServerResponse response = ctx.response();
-                response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
-                response.setStatusCode(responseMsg.getCode().getCode()).end(responseMsg.getContent());
+                ResponseUtil.responseContent(response, responseMsg);
             });
         };
     }

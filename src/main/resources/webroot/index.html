@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app="ct">
+<html ng-app="cad">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
@@ -50,7 +50,8 @@
     <script src="assets/js/bootstrap.min.js"></script>
     <script src="assets/js/jquery-ui-1.10.2.custom.min.js"></script>
 
-    <script src="assets/js/angular.min.js"></script>
+    <!--<script src="assets/js/angular.min.js"></script>-->
+    <script src="assets/photoswipe/js/angular.js"></script>
     <script src="assets/js/angular-ui-router.min.js"></script>
     <script src="assets/js/angular-storage.js"></script>
     <script src="assets/js/angular-animate.min.js"></script>
@@ -60,6 +61,11 @@
     <script src="assets/js/ng-file-upload-shim.js"></script>
     <script src="assets/js/ng-file-upload.js"></script>
     <script src="assets/js/tm.pagination.js"></script>
+
+    <!--相册-->
+    <script type="text/javascript" src="assets/photoswipe/js/photoswipe.min.js"></script>
+    <script type="text/javascript" src="assets/photoswipe/js/photoswipe-ui-default.min.js"></script>
+    <script src="assets/photoswipe/js/angular-photoswipe.js"></script>
 
 </head>
 <body ng-controller="MainCtrl as main" class="hold-transition skin-blue sidebar-mini">
@@ -138,17 +144,17 @@
             <!-- sidebar menu: : style can be found in sidebar.less -->
             <ul class="sidebar-menu">
                 <li class="header">导航</li>
-                <li ng-if="main.isPermitted('ct')" class="active">
+                <!--<li ng-if="main.isPermitted('ct')" class="active">
                     <a href="#/consultation">
                         <i class="fa fa-fw fa-object-group"></i> <span>会诊记录</span>
                     </a>
-                </li>
-                <li ng-if="main.isPatient()">
+                </li>-->
+                <li ng-if="main.currentUser && main.isPatient()">
                     <a href="#/records/{{main.currentUser}}">
                         <i class="fa fa-fw fa-object-group"></i> <span>病历记录</span>
                     </a>
                 </li>
-                <li ng-if="main.isAdminOrDoctor()">
+                <li ng-if="main.currentUser && main.isAdminOrDoctor()">
                     <a href="#/records">
                         <i class="fa fa-fw fa-object-group"></i> <span>病历记录</span>
                     </a>
@@ -184,14 +190,17 @@
         <div ui-view></div>
         <script src="app/app.js"></script>
         <!--<script src="app/ct/ct.js"></script>-->
-        <script src="app/ct/area.js"></script>
+        <!--<script src="app/ct/area.js"></script>-->
         <script src="app/upload/upload.js"></script>
-        <script src="app/consultation/consultation.js"></script>
-        <script src="app/consultation/record.js"></script>
+        <!--<script src="app/consultation/consultation.js"></script>
+        <script src="app/consultation/record.js"></script>-->
         <script src="app/anonymous/anonymous.js"></script>
         <script src="app/auth/auth.js"></script>
         <script src="app/user/user.js"></script>
+        <script src="app/ct/ct.js"></script>
         <script src="app/record/records.js"></script>
+        <script src="app/ct/recognition.js"></script>
+        <script src="app/ct/gallery.js"></script>
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer">

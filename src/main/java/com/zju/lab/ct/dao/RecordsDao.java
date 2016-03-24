@@ -173,4 +173,35 @@ public class RecordsDao {
             });
         });
     }
+
+    public void deleteRecord(int id, Handler<ResponseMsg<String>> responseMsgHandler){
+        sqlite.getConnection(connection -> {
+            if (connection.failed()){
+                LOGGER.error("connection sqlite failed!");
+                responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
+                return;
+            }
+            SQLConnection conn = connection.result();
+            conn.update("delete from ct where recordId = "+id, updateResultAsyncResult1 -> {
+                if (updateResultAsyncResult1.succeeded()){
+                    String sql = "delete form record where id = "+id;
+                    conn.update(sql, updateResultAsyncResult -> {
+                        if (updateResultAsyncResult.succeeded()){
+                            LOGGER.info("delete record success!");
+                            responseMsgHandler.handle(new ResponseMsg<String>("delete record success!"));
+                        }
+                        else{
+                            LOGGER.error("delete record failed!");
+                            responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult.cause().getMessage()));
+                        }
+                    });
+                }
+                else{
+                    LOGGER.error("delete ct by recordId failed!");
+                    responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult1.cause().getMessage()));
+                }
+            });
+
+        });
+    }
 }

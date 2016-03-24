@@ -5,4 +5,5 @@ package com.zju.lab.ct.utils;
  */
 public class Constants {
     public static String LESION ="lesion.json";
+    public static String LUNG ="lung.json";
 }

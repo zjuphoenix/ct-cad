@@ -49,7 +49,7 @@ angular.module('upload', ['ui.router','ngFileUpload', 'auth'])
             });
         };
     }])
-    .controller('UploadFilesCtrl', ['$scope', 'Upload', 'BASE_URI', 'UPLOAD_URI', function ($scope, Upload, UPLOAD_URI) {
+    .controller('UploadFilesCtrl', ['$scope', 'Upload', 'BASE_URI', 'UPLOAD_URI', function ($scope, Upload, BASE_URI, UPLOAD_URI) {
         // upload later on form submit or something similar
         $scope.type = 1;
         $scope.result = '';

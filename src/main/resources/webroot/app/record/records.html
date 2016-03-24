@@ -29,7 +29,10 @@
                             <td>{{record.diagnosis}}</td>
                             <td>{{record.username}}</td>
                             <td>
-                                <a class="btn btn-success" href="#/consultation/{{consultation.id}}">详情</a>
+                                <a class="btn btn-success" href="#/ct/{{record.id}}">CT详情</a>
+                                <a class="btn btn-success" href="#/gallery/{{record.id}}">CT切片预览</a>
+                                <a class="btn btn-danger" ng-click="deleteRecord(record.id)">删除</a>
+                                <a class="btn btn-info" ng-click="report(record)">生成报表</a>
                             </td>
                         </tr>
                         </tbody>

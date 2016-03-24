@@ -30,6 +30,7 @@ public class FeatureDao {
 
     protected JDBCClient sqlite = null;
     private Map<String,Integer> lesionType;
+    private Map<String,Integer> lungType;
 
     public FeatureDao(Vertx vertx) throws UnsupportedEncodingException {
         JsonObject sqliteConfig = new JsonObject()
@@ -45,12 +46,21 @@ public class FeatureDao {
             for (int i = 1; i <= 5; i++) {
                 lesionType.put(lesion.getString(String.valueOf(i)),i);
             }
+
+            url = getClass().getClassLoader().getResource(Constants.LUNG);
+            LOGGER.debug("Initialize lung type from path : {}", url);
+            mapper = new ObjectMapper();
+            lesion = new JsonObject((Map<String, Object>) mapper.readValue(url, Map.class));
+            lungType = new HashMap<>(3);
+            for (int i = 1; i <= 3; i++) {
+                lungType.put(lesion.getString(String.valueOf(i)),i);
+            }
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
     }
 
-    public void addFeature(double[] feature, String label, Handler<String> handler){
+    public void addLiverFeature(double[] feature, String label, Handler<String> handler){
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
@@ -64,6 +74,32 @@ public class FeatureDao {
                 }
                 params.add(lesionType.get(label));
                 conn.updateWithParams("insert into feature(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,label) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params,result -> {
+                    if (result.succeeded()){
+                        handler.handle("success");
+                    }
+                    else{
+                        handler.handle(result.cause().getMessage());
+                    }
+                    JDBCConnUtil.close(conn);
+                });
+            }
+        });
+    }
+
+    public void addLungFeature(double[] feature, String label, Handler<String> handler){
+        sqlite.getConnection(connection -> {
+            if (connection.failed()){
+                LOGGER.error("connection sqlite failed!");
+                handler.handle("connection sqlite failed!");
+            }
+            else{
+                SQLConnection conn = connection.result();
+                JsonArray params = new JsonArray();
+                for (int i=0;i<26;i++){
+                    params.add(feature[i]);
+                }
+                params.add(lungType.get(label));
+                conn.updateWithParams("insert into lungfeature(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,label) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params,result -> {
                     if (result.succeeded()){
                         handler.handle("success");
                     }

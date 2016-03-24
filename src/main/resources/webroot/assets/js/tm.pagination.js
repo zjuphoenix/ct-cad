@@ -46,7 +46,7 @@ angular.module('tm.pagination', []).directive('tmPagination',[function(){
 
             // conf.erPageOptions
             if(!scope.conf.perPageOptions){
-                scope.conf.perPageOptions = [10, 15, 20, 30, 50];
+                scope.conf.perPageOptions = [5, 10, 15, 20, 30, 50];
             }
 
             // pageList数组

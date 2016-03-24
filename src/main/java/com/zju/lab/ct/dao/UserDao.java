@@ -24,7 +24,7 @@ import java.util.List;
  */
 @HandlerDao
 public class UserDao {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConsultationDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserDao.class);
 
     protected JDBCClient sqlite = null;
 

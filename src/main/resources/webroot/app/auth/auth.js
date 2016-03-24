@@ -14,6 +14,7 @@ angular.module('auth', ['angular-storage', 'ui.router'])
             });
 
         $httpProvider.interceptors.push('APIInterceptor');
+        $urlRouterProvider.otherwise('/login');
     })
     .service('APIInterceptor', function($rootScope, UserContext) {
         var service = this;
@@ -74,7 +75,7 @@ angular.module('auth', ['angular-storage', 'ui.router'])
             if (userPermissions.length > 0) {
                 for (var i = 0; i  < userPermissions.length; i++) {
                     var entry = userPermissions[i];
-                    console.log(entry.PERM);
+                    /*console.log(entry.PERM);*/
                     if (permission === entry.PERM) {
                         return true;
                     }
@@ -170,7 +171,7 @@ angular.module('auth', ['angular-storage', 'ui.router'])
                         user.access_token = response.data.id;
                         UserContext.setCurrentUser(user);
                         $rootScope.$broadcast('authorized');
-                        $state.go('consultation');
+                        $state.go('uploadFiles');
                     } else {
                         login.message = 'Wrong username or password';
                     }
