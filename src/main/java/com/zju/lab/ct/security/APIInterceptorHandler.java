@@ -16,6 +16,10 @@ public class APIInterceptorHandler extends AuthHandlerImpl {
         super(authProvider);
     }
 
+    /**
+     * 用户验证拦截器
+     * @param context
+     */
     @Override
     public void handle(RoutingContext context) {
         Session session = context.session();

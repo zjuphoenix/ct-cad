@@ -40,7 +40,7 @@ public class LesionRecognitionServer extends AbstractVerticle {
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
-        FeatureDao featureDao = new FeatureDao(vertx);
+        /*FeatureDao featureDao = new FeatureDao(vertx);
         RandomForest randomforest = new RandomForest(50, 4);
         featureDao.fetchFeatureSamples(samples -> {
             if (samples == null){
@@ -48,31 +48,8 @@ public class LesionRecognitionServer extends AbstractVerticle {
             }
             randomforest.createForest(samples);
             LOGGER.info("RandomForest Algorithm finished!");
-        });
-        /*List<Double[]> data = new ArrayList<>(300);
-        String filePath = "feature";
-        try {
-            String encoding="UTF-8";
-            InputStreamReader read = new InputStreamReader(
-                    LesionRecognitionServer.class.getClassLoader().getResourceAsStream(filePath),encoding);//考虑到编码格式
-            BufferedReader bufferedReader = new BufferedReader(read);
-            String lineTxt = null;
-            while((lineTxt = bufferedReader.readLine()) != null){
-                String[] line = lineTxt.split(",");
-                Double[] d = new Double[line.length];
-                for (int i = 0; i < 27; i++) {
-                    d[i] = Double.valueOf(line[i]);
-                }
-                data.add(d);
-            }
-            read.close();
-        } catch (Exception e) {
-            System.out.println("读取文件内容出错");
-            e.printStackTrace();
-        }
-        RandomForest randomforest = new RandomForest(50, 5);
-        randomforest.createForest(data);*/
-
+        });*/
+        RandomForest randomforest = AppUtil.getRandomForestModel();
 
         HttpServer server = vertx.createHttpServer();
         Router router = Router.router(vertx);
@@ -93,20 +70,7 @@ public class LesionRecognitionServer extends AbstractVerticle {
             }
         });
 
-        /*server.requestHandler(request -> {
-
-            String image = request.getParam("image");
-            HttpServerResponse response = request.response();
-            response.putHeader("content-type", "text/plain");
-            try {
-                int type = randomforest.predictType(imageFeature.getFeature(image));
-                response.end(lesion[type]);
-            } catch (IOException e) {
-                e.printStackTrace();
-                response.setStatusCode(500).end();
-            }
-        });*/
-        server.requestHandler(router::accept).listen(8081);
+        server.requestHandler(router::accept).listen(port);
         LOGGER.info("LesionRecognitionServer started!");
     }
 }

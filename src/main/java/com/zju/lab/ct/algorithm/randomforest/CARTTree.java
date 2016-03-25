@@ -1,11 +1,12 @@
 package com.zju.lab.ct.algorithm.randomforest;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by wuhaitao on 2016/2/23.
  */
-public class CARTTree {
+public class CARTTree implements Serializable{
 
     private int featureNum;
     private List<Double[]> dataSet;

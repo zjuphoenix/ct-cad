@@ -1,11 +1,12 @@
 package com.zju.lab.ct.algorithm.randomforest;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by wuhaitao on 2016/2/23.
  */
-public class RandomForest {
+public class RandomForest implements Serializable{
     private int treeNum;
     private int typeNum;
     private List<CARTTree> trees;
@@ -32,7 +33,7 @@ public class RandomForest {
 
     public int predictType(double[] sample){
         Map<Integer,Integer> res = new HashMap<>(typeNum);
-        for (CARTTree tree : trees){
+        trees.forEach(tree -> {
             int type = tree.predictType(sample);
             if (res.containsKey(type)){
                 res.replace(type, res.get(type)+1);
@@ -40,7 +41,7 @@ public class RandomForest {
             else{
                 res.put(type, 1);
             }
-        }
+        });
         int predict = 0;
         int max = -1;
         for (Map.Entry<Integer, Integer> entry: res.entrySet()) {

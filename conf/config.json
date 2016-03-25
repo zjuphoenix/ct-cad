@@ -3,5 +3,6 @@
   "algorithm.server.port" : 8081,
   "db.url" : "jdbc:sqlite:db/cad",
   "db.driver_class" : "org.sqlite.JDBC",
-  "upload.path" : "upload"
+  "upload.path" : "upload",
+  "RandomForest" : "conf/RandomForest"
 }

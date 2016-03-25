@@ -10,6 +10,7 @@ import com.zju.lab.ct.utils.AppUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.jdbc.JDBCAuth;
 import io.vertx.ext.web.Router;
@@ -66,6 +67,9 @@ public class WebServer extends AbstractVerticle {
         LOGGER.info("Scanning dao finished!");
 
         router = Router.router(vertx);
+
+        /*Cross Origin Resource Sharing*/
+        router.route().handler(CorsHandler.create("*").allowedMethod(HttpMethod.GET).allowedMethod(HttpMethod.POST).allowedMethod(HttpMethod.PUT).allowedMethod(HttpMethod.DELETE));
 
         router.route().handler(CookieHandler.create());
         router.route().handler(BodyHandler.create().setUploadsDirectory(AppUtil.getUploadDir()));

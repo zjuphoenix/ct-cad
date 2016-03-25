@@ -174,6 +174,11 @@ public class RecordsDao {
         });
     }
 
+    /**
+     * 删除病历,包括病历记录和CT图像
+     * @param id
+     * @param responseMsgHandler
+     */
     public void deleteRecord(int id, Handler<ResponseMsg<String>> responseMsgHandler){
         sqlite.getConnection(connection -> {
             if (connection.failed()){
@@ -184,7 +189,7 @@ public class RecordsDao {
             SQLConnection conn = connection.result();
             conn.update("delete from ct where recordId = "+id, updateResultAsyncResult1 -> {
                 if (updateResultAsyncResult1.succeeded()){
-                    String sql = "delete form record where id = "+id;
+                    String sql = "delete from record where id = "+id;
                     conn.update(sql, updateResultAsyncResult -> {
                         if (updateResultAsyncResult.succeeded()){
                             LOGGER.info("delete record success!");

@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Created by wuhaitao on 2015/12/10.
+ * 路由表,仿照springMVC
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

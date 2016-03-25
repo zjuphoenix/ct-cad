@@ -1,23 +1,34 @@
-<style>
-    .table{
-        table-layout: fixed;
-    }
-    .datahide{
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-</style>
 <!-- Content Header (Page header) -->
 <section class="content-header">
     <h1>
-        CT图像
+        病历详情
     </h1>
 </section>
 
 <!-- Main content -->
 <section class="content">
     <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">病历诊断</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div class="form-group">
+                        <label><span>病历ID:{{id}}</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>病人用户名:{{username}}</span></label>
+                        <textarea ng-model="diagnosis" class="form-control" rows="5" placeholder="添加诊断结果"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <a class="btn btn-info" ng-click="updateDiagnosis()">更新诊断结果</a>
+                    </div>
+                    <div class="form-group">
+                        {{updateDiagnosisResult}}
+                    </div>
+
+                </div>
+            </div>
+        </div>
         <div class="col-xs-12">
             <div class="box">
                 <div class="box-header with-border">

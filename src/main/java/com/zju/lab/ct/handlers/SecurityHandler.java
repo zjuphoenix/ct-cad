@@ -21,6 +21,12 @@ public class SecurityHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityHandler.class);
 
+    /**
+     * /api/permission
+     * POST
+     * 获取用户所有权限
+     * @return
+     */
     @RouteMapping(value = "/permission", method = RouteMethod.POST)
     public Handler<RoutingContext> permissions() {
         return ctx -> {

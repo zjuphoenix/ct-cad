@@ -152,7 +152,36 @@ public class CTImageDao {
     }
 
     /**
-     * 上传CT数据
+     * 插入一张CT图像记录,在单张CT图像上传后调用
+     * @param ctImage
+     * @param responseMsgHandler
+     */
+    public void addCTImage(CTImage ctImage, Handler<ResponseMsg<String>> responseMsgHandler){
+        sqlite.getConnection(connection -> {
+            if (connection.failed()){
+                LOGGER.error("connection sqlite failed!");
+                responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
+                return;
+            }
+            LOGGER.info("start receive file");
+            SQLConnection conn = connection.result();
+            JsonArray params = new JsonArray().add(ctImage.getType()).add(ctImage.getFile()).add(ctImage.getDiagnosis()).add(ctImage.getRecordId());
+            String sql = "insert into ct(type,file,diagnosis,recordId) values(?,?,?,?)";
+            conn.updateWithParams(sql, params, insertResult -> {
+                LOGGER.info("receive file");
+                if (insertResult.failed()) {
+                    LOGGER.info("insert ct {} failed!", ctImage.getFile());
+                    responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, insertResult.cause().getMessage()));
+                }
+                else{
+                    responseMsgHandler.handle(new ResponseMsg<String>("upload ct success"));
+                }
+            });
+        });
+    }
+
+    /**
+     * 上传多张CT数据，在多文件上传后调用
      * @param username
      * @param ctImages
      * @param responseMsgHandler

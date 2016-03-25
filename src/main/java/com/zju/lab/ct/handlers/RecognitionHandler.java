@@ -38,6 +38,12 @@ public class RecognitionHandler {
     }
 
 
+    /**
+     * /api/ct/predict
+     * POST
+     * 病变识别handler
+     * @return
+     */
     @RouteMapping(value = "/predict", method = RouteMethod.POST)
     public Handler<RoutingContext> predictLesionType() {
         return ctx -> {
@@ -89,6 +95,11 @@ public class RecognitionHandler {
         };
     }
 
+    /**
+     * /api/ct/addLiverfeature
+     * 添加肝脏病变特征到数据表handler
+     * @return
+     */
     @RouteMapping(value = "/addLiverfeature", method = RouteMethod.POST)
     public Handler<RoutingContext> addLiverfeature() {
         return ctx -> {
@@ -122,6 +133,11 @@ public class RecognitionHandler {
         };
     }
 
+    /**
+     * /api/ct/addLungfeature
+     * 添加肺部病变特征到数据表handler
+     * @return
+     */
     @RouteMapping(value = "/addLungfeature", method = RouteMethod.POST)
     public Handler<RoutingContext> addLungfeature() {
         return ctx -> {

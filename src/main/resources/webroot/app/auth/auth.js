@@ -14,7 +14,7 @@ angular.module('auth', ['angular-storage', 'ui.router'])
             });
 
         $httpProvider.interceptors.push('APIInterceptor');
-        $urlRouterProvider.otherwise('/login');
+        /*$urlRouterProvider.otherwise('/login');*/
     })
     .service('APIInterceptor', function($rootScope, UserContext) {
         var service = this;

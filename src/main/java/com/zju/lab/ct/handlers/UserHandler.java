@@ -33,6 +33,12 @@ public class UserHandler {
         this.userDao = userDao;
     }
 
+    /**
+     * /api/users
+     * GET
+     * 获取用户列表handler
+     * @return
+     */
     @RouteMapping(method = RouteMethod.GET)
     public Handler<RoutingContext> list() {
         return ctx -> {
@@ -43,9 +49,9 @@ public class UserHandler {
                 if (responseMsg.getContent() instanceof List){
                     JsonArray array = new JsonArray();
                     List<JsonObject> jsonObjects = (List<JsonObject>) responseMsg.getContent();
-                    for (JsonObject object : jsonObjects){
+                    jsonObjects.forEach(object -> {
                         array.add(object);
-                    }
+                    });
                     response.setChunked(true).setStatusCode(responseMsg.getCode().getCode()).end(array.encode());
                 }
                 else{
@@ -55,6 +61,12 @@ public class UserHandler {
         };
     }
 
+    /**
+     * /api/users
+     * POST
+     * 添加用户handler
+     * @return
+     */
     @RouteMapping(method = RouteMethod.POST)
     public Handler<RoutingContext> add() {
         return ctx -> {
@@ -79,6 +91,12 @@ public class UserHandler {
         };
     }
 
+    /**
+     * /api/users/:username
+     * 获取用户信息handler，目前该功能尚未实现网页操作入口
+     * GET
+     * @return
+     */
     @RouteMapping(value = "/:username", method = RouteMethod.GET)
     public Handler<RoutingContext> edit() {
         return ctx -> {
@@ -92,12 +110,10 @@ public class UserHandler {
 
             JDBCClient client = AppUtil.getJdbcClient(Vertx.vertx());
             client.getConnection(conn -> {
-
                 if (conn.failed()) {
                     LOGGER.error(conn.cause().getMessage(), conn.cause());
                     ctx.fail(400);
                 }
-
                 SQLUtil.query(conn.result(), "select USERNAME from USER where USERNAME = ?", new JsonArray().add(username), res -> {
                     SQLUtil.close(conn.result());
                     if (res.getRows().size() == 1) {
@@ -112,6 +128,12 @@ public class UserHandler {
         };
     }
 
+    /**
+     * /api/users/:username
+     * PUT
+     * 编辑用户handler
+     * @return
+     */
     @RouteMapping(value = "/:username", method = RouteMethod.PUT)
     public Handler<RoutingContext> update() {
         return ctx -> {
@@ -143,6 +165,12 @@ public class UserHandler {
         };
     }
 
+    /**
+     * /api/users/:username
+     * DELETE
+     * 删除用户handler
+     * @return
+     */
     @RouteMapping(value = "/:username", method = RouteMethod.DELETE)
     public Handler<RoutingContext> delete() {
         return ctx -> {

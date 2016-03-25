@@ -10,6 +10,7 @@ import com.zju.lab.ct.utils.ResponseUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
@@ -33,7 +34,40 @@ public class UploadHandler {
     }
 
     /**
-     * 文件上传
+     * /upload
+     * POST
+     * 单文件上传
+     * @return
+     */
+    @RouteMapping(method = RouteMethod.POST)
+    public Handler<RoutingContext> upload() {
+        return ctx -> {
+            HttpServerRequest request = ctx.request();
+            int id = Integer.parseInt(request.getParam("id"));
+            int type = Integer.parseInt(request.getParam("type"));
+            Set<FileUpload> files = ctx.fileUploads();
+            for (FileUpload file : files) {
+                String path = file.uploadedFileName();
+                String img = path.substring(path.indexOf(AppUtil.configStr("upload.path"))+7);
+                CTImage ctImage = new CTImage();
+                ctImage.setType(type == 1 ? "肝脏" : "肺部");
+                ctImage.setFile(img);
+                ctImage.setDiagnosis("");
+                ctImage.setRecordId(id);
+                LOGGER.info("upload path : {}", path);
+                ctImageDao.addCTImage(ctImage, responseMsg -> {
+                    HttpServerResponse response = ctx.response();
+                    ResponseUtil.responseContent(response, responseMsg);
+                });
+                break;
+            }
+        };
+    }
+
+    /**
+     * /upload/files
+     * POST
+     * 多文件上传
      * @return
      */
     @RouteMapping(method = RouteMethod.POST, value = "/files")
@@ -44,7 +78,7 @@ public class UploadHandler {
             int type = Integer.parseInt(request.getParam("type"));
             Set<FileUpload> files = ctx.fileUploads();
             List<CTImage> ctImages = new ArrayList<>(files.size());
-            for (FileUpload file : files) {
+            files.forEach(file -> {
                 String path = file.uploadedFileName();
                 String img = path.substring(path.indexOf(AppUtil.configStr("upload.path"))+7);
                 CTImage ctImage = new CTImage();
@@ -53,7 +87,7 @@ public class UploadHandler {
                 ctImage.setDiagnosis("");
                 LOGGER.info("upload path : {}", path);
                 ctImages.add(ctImage);
-            }
+            });
             ctImageDao.addCTImages(username, ctImages, responseMsg -> {
                 HttpServerResponse response = ctx.response();
                 ResponseUtil.responseContent(response, responseMsg);
@@ -62,6 +96,8 @@ public class UploadHandler {
     }
 
     /**
+     * /upload/:image
+     * GET
      * 获取上传的图片在前端显示，这里的图片不包含在静态资源里，而是通过web请求获取
      * @return
      */

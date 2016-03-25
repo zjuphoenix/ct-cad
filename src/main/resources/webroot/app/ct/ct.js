@@ -7,7 +7,12 @@ userModule.constant('ENDPOINT_URI', '/api')
     .constant('UPLOAD_FILE', 'upload/')
     .config(function ($stateProvider) {
         $stateProvider.state('ct', {
-            url: '/ct/:recordId',
+            url: '/ct',
+            params: {
+                'id':1,
+                'diagnosis':'',
+                'username':''
+            },
             templateUrl: 'app/ct/ctimages.html',
             controller: 'CTImageCtrl'
         })
@@ -38,8 +43,11 @@ userModule.constant('ENDPOINT_URI', '/api')
             return $http.post(ENDPOINT_URI+'/ct', postData);
         };
     })
-    .controller('CTImageCtrl', function($scope, $state, $stateParams, CTImageService){
-        var recordId = $stateParams.recordId;
+    .controller('CTImageCtrl', function($scope, $state, $http, $stateParams, CTImageService, BASE_URI){
+        $scope.id = $stateParams.id;
+        $scope.diagnosis = $stateParams.diagnosis;
+        $scope.username = $stateParams.username;
+
         function getCTImages(consultationId){
             CTImageService.getCTImages(consultationId)
                 .then(function(result){
@@ -51,7 +59,7 @@ userModule.constant('ENDPOINT_URI', '/api')
 
         var getCTImagesByPage = function(){
             var postData = {
-                'recordId': parseInt(recordId),
+                'recordId': parseInt($scope.id),
                 'pageIndex': parseInt($scope.paginationConf.currentPage),
                 'pageSize': parseInt($scope.paginationConf.itemsPerPage)
             }
@@ -84,6 +92,20 @@ userModule.constant('ENDPOINT_URI', '/api')
             }
         };
 
+        /*更新病历诊断结果*/
+        $scope.updateDiagnosisResult = '';
+        $scope.updateDiagnosis = function(){
+            $http.put(BASE_URI+'/api/records/diagnosis', {
+                'id': parseInt($scope.id),
+                'diagnosis': $scope.diagnosis
+            }).then(function(result){
+                $scope.updateDiagnosisResult = result.data;
+            },function(error){
+                console.log(error);
+            });
+        }
+
+        /*进入辅助诊断界面*/
         $scope.goCAD = function(ctImage){
             console.log(ctImage);
             $state.go('cad', {
@@ -95,6 +117,7 @@ userModule.constant('ENDPOINT_URI', '/api')
             });
         };
 
+        /*进入CT诊断界面*/
         $scope.goDiagnosis = function(ctImage){
             $state.go('diagnosis', {
                 'id':ctImage.id,
@@ -105,6 +128,7 @@ userModule.constant('ENDPOINT_URI', '/api')
             });
         };
 
+        /*删除CT*/
         $scope.deleteCT = function(ctId){
             CTImageService.deleteCT(ctId)
                 .then(function(result){
@@ -113,19 +137,10 @@ userModule.constant('ENDPOINT_URI', '/api')
                         if(ctId === r.id)
                             $scope.ctImages.splice(i, 1);
                     });
-                    /*$scope.$apply();*/
-                    /*var length = $scope.ctImages.length;
-                     for(var i=0;i<length;i++){
-                     if($scope.ctImages[i].id == ctId){
-                     $scope.ctImages.slice(i,1);
-                     break;
-                     }
-                     }*/
                 },function(error){
                     console.log(error);
                 });
         };
-        /*getCTImages(id);*/
 
 
         //配置分页基本参数

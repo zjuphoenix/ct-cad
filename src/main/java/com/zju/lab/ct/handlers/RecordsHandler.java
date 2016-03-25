@@ -31,6 +31,10 @@ public class RecordsHandler {
         this.reportDao = reportDao;
     }
 
+    /**
+     * 病历分页管理，区分管理员、医生和病人，病人按用户名查询自己的病历，管理员和医生查询所有病历
+     * @return
+     */
     @RouteMapping(method = RouteMethod.POST)
     public Handler<RoutingContext> getRecordsByPage(){
         return  ctx -> {
@@ -53,6 +57,10 @@ public class RecordsHandler {
         };
     }
 
+    /**
+     * 插入病历，目前还没有这个操作入口
+     * @return
+     */
     @RouteMapping(method = RouteMethod.POST, value = "/:username")
     public Handler<RoutingContext> addRecord(){
         return ctx -> {
@@ -64,7 +72,11 @@ public class RecordsHandler {
         };
     }
 
-    @RouteMapping(method = RouteMethod.PUT, value = "/:username")
+    /**
+     * 更新病历诊断结果
+     * @return
+     */
+    @RouteMapping(method = RouteMethod.PUT, value = "/diagnosis")
     public Handler<RoutingContext> updateRecord(){
         return ctx -> {
             JsonObject data = ctx.getBodyAsJson();
@@ -92,6 +104,10 @@ public class RecordsHandler {
         };
     }
 
+    /**
+     * 生成报表
+     * @return
+     */
     @RouteMapping(method = RouteMethod.POST, value = "/report")
     public Handler<RoutingContext> report(){
         return  ctx -> {
@@ -105,6 +121,10 @@ public class RecordsHandler {
         };
     }
 
+    /**
+     * 报表文件浏览器预览下载请求
+     * @return
+     */
     @RouteMapping(method = RouteMethod.GET, value = "/report/:report")
     public Handler<RoutingContext> getReport(){
         return  ctx -> {

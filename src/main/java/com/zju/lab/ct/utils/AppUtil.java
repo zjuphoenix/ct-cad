@@ -1,6 +1,7 @@
 package com.zju.lab.ct.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zju.lab.ct.algorithm.randomforest.RandomForest;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonObject;
@@ -10,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -101,6 +102,14 @@ public class AppUtil {
             LOGGER.error(e.getMessage(), e);
             return BodyHandler.DEFAULT_UPLOADS_DIRECTORY;
         }*/
+    }
+
+    public static RandomForest getRandomForestModel() throws IOException, ClassNotFoundException {
+        //实例化ObjectInputStream对象
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("RandomForest")));
+        //读取对象people,反序列化
+        RandomForest randomForest = (RandomForest) ois.readObject();
+        return randomForest;
     }
 
 }

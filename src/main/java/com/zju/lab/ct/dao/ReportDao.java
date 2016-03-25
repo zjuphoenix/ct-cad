@@ -38,6 +38,16 @@ public class ReportDao {
         sqlite = JDBCClient.createShared(vertx, sqliteConfig, "report");
     }
 
+    /**
+     * 生成报表函数
+     * @param recordId
+     * @param username
+     * @param diagnosis
+     * @param result
+     * @return
+     * @throws IOException
+     * @throws DocumentException
+     */
     private String generateReportFile(int recordId, String username, String diagnosis, List<JsonObject> result) throws IOException, DocumentException {
         String fileName = "id_"+recordId+"_username_"+username+".pdf";
         Document document = new Document();
@@ -75,6 +85,13 @@ public class ReportDao {
         return fileName;
     }
 
+    /**
+     * 生成报表操作接口
+     * @param recordId
+     * @param username
+     * @param diagnosis
+     * @param responseMsgHandler
+     */
     public void report(int recordId, String username, String diagnosis, Handler<ResponseMsg<String>> responseMsgHandler){
         sqlite.getConnection(sqlConnectionAsyncResult -> {
             if (sqlConnectionAsyncResult.succeeded()){

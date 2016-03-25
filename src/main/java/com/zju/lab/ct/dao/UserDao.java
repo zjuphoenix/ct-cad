@@ -35,6 +35,10 @@ public class UserDao {
         sqlite = JDBCClient.createShared(vertx, sqliteConfig, "user");
     }
 
+    /**
+     * 获取所有用户
+     * @param done
+     */
     public void getUsers(Handler<ResponseMsg> done){
         sqlite.getConnection(connection -> {
             if (connection.succeeded()){
@@ -56,6 +60,11 @@ public class UserDao {
         });
     }
 
+    /**
+     * 添加用户
+     * @param user
+     * @param done
+     */
     public void addUser(User user, Handler<ResponseMsg<String>> done){
         sqlite.getConnection(connection -> {
             if (connection.succeeded()){
@@ -110,6 +119,11 @@ public class UserDao {
         });
     }
 
+    /**
+     * 删除用户
+     * @param username
+     * @param done
+     */
     public void deleteUser(String username, Handler<ResponseMsg<String>> done){
         if (StringUtils.isEmpty(username)){
             done.handle(new ResponseMsg(HttpCode.BAD_REQUEST, "username must not be null or empty"));

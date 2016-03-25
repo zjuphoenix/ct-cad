@@ -16,7 +16,8 @@ angular.module('records',['ui.router', 'tm.pagination', 'auth'])
                 templateUrl: 'app/record/records.html',
                 controller: 'UserRecordsCtrl'
             });
-        $urlRouterProvider.otherwise('/records');
+        /*这里不能设置otherwise路由，因为在CT相册模式会把http://localhost:8080/#/gallery/1改变为http://localhost:8080/#/lg=1&slide=3，如果设置了otherwise那么就会造成界面跳转，造成相册闪退*/
+        /*$urlRouterProvider.otherwise('/records');*/
     })
     .service('RecordsService', function($http, BASE_URI){
         var service = this;
@@ -34,8 +35,16 @@ angular.module('records',['ui.router', 'tm.pagination', 'auth'])
             });
         };
     })
-    .controller('RecordsCtrl', function($scope, $window, RecordsService, HOST){
-
+    .controller('RecordsCtrl', function($scope, $window, $state, RecordsService, HOST){
+        /*进入病历详情界面*/
+        $scope.goRecordDetail = function(record){
+            $state.go('ct', {
+                'id':record.id,
+                'diagnosis':record.diagnosis,
+                'username':record.username
+            });
+        }
+        /*生成报表*/
         $scope.report = function(record){
             RecordsService.report(record)
                 .then(function(result){
@@ -46,6 +55,7 @@ angular.module('records',['ui.router', 'tm.pagination', 'auth'])
                     console.log(error);
                 });
         };
+        /*删除病历*/
         $scope.deleteRecord = function(recordId){
             RecordsService.deleteRecordById(recordId)
                 .then(function(result){

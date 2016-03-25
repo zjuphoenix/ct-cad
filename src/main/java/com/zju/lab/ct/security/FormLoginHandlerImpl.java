@@ -62,6 +62,10 @@ public class FormLoginHandlerImpl implements FormLoginHandler {
         this.directLoggedInOKURL = directLoggedInOKURL;
     }
 
+    /**
+     * 用户登陆handler
+     * @param context
+     */
     @Override
     public void handle(RoutingContext context) {
         HttpServerRequest req = context.request();

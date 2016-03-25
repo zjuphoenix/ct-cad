@@ -60,6 +60,12 @@ public class FeatureDao {
         }
     }
 
+    /**
+     * 添加肝脏局部病变特征数据到数据库
+     * @param feature
+     * @param label
+     * @param handler
+     */
     public void addLiverFeature(double[] feature, String label, Handler<String> handler){
         sqlite.getConnection(connection -> {
             if (connection.failed()){
@@ -86,6 +92,12 @@ public class FeatureDao {
         });
     }
 
+    /**
+     * 添加肺部病变特征数据到数据库
+     * @param feature
+     * @param label
+     * @param handler
+     */
     public void addLungFeature(double[] feature, String label, Handler<String> handler){
         sqlite.getConnection(connection -> {
             if (connection.failed()){
@@ -112,6 +124,10 @@ public class FeatureDao {
         });
     }
 
+    /**
+     * 从肝脏病变特征数据表feature中拉取所有数据，用于算法模型训练
+     * @param samplesHandler
+     */
     public void fetchFeatureSamples(Handler<List<Double[]>> samplesHandler){
         sqlite.getConnection(connection -> {
             if (connection.failed()){
@@ -125,7 +141,7 @@ public class FeatureDao {
                         List<JsonObject> objs = result.result().getRows();
                         List<Double[]> samples = new ArrayList<Double[]>(objs.size());
                         if (objs != null && !objs.isEmpty()) {
-                            for (JsonObject obj : objs) {
+                            objs.forEach(obj -> {
                                 Double[] d = new Double[27];
                                 d[0] = obj.getDouble("f1");
                                 d[1] = obj.getDouble("f2");
@@ -155,7 +171,7 @@ public class FeatureDao {
                                 d[25] = obj.getDouble("f1");
                                 d[26] = (double)obj.getInteger("label");
                                 samples.add(d);
-                            }
+                            });
                             samplesHandler.handle(samples);
                         }
                         else{
