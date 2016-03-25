@@ -51,8 +51,8 @@
                             <td>{{ctImage.type}}</td>
                             <td class="datahide">{{ctImage.diagnosis}}</td>
                             <td>
-                                <a class="btn btn-success" ng-click="goDiagnosis(ctImage)">病历</a>
-                                <a ng-if="main.isPermitted('cad')" class="btn btn-info" ng-click="goCAD(ctImage)">辅助诊断</a>
+                                <a class="btn btn-success" ng-click="goDiagnosis(ctImage)" target="_blank">病历</a>
+                                <a ng-if="main.isPermitted('cad')" class="btn btn-info" ng-click="goCAD(ctImage)" target="_blank">辅助诊断</a>
                                 <!--<a ng-if="main.isPermitted('cad') && isLiver(ctImage.type)" class="btn btn-info" ng-click="goCAD(ctImage)">辅助诊断</a>
                                 <a ng-if="main.isPermitted('cad') && isLung(ctImage.type)" href="#/lung/{{ctImage.file}}" class="btn btn-info">肺部辅助诊断</a>-->
                                 <a ng-if="main.isPermitted('delete_ct')" class="btn btn-danger" ng-click="deleteCT(ctImage.id)">删除</a>

@@ -4,5 +4,6 @@
   "db.url" : "jdbc:sqlite:db/cad",
   "db.driver_class" : "org.sqlite.JDBC",
   "upload.path" : "upload",
-  "RandomForest" : "conf/RandomForest"
+  "RandomForest" : "conf/RandomForest",
+  "RandomForest_Lung" : "conf/RandomForest_Lung"
 }

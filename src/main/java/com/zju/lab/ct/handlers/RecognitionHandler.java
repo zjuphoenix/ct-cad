@@ -53,6 +53,7 @@ public class RecognitionHandler {
             int y1 = data.getInteger("y1");
             int x2 = data.getInteger("x2");
             int y2 = data.getInteger("y2");
+            String cttype = data.getString("type");
             URI uri = null;
             HttpServerResponse re = ctx.response();
             re.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
@@ -64,12 +65,14 @@ public class RecognitionHandler {
                         .setParameter("y1", String.valueOf(y1))
                         .setParameter("x2", String.valueOf(x2))
                         .setParameter("y2", String.valueOf(y2))
+                        .setParameter("type", cttype)
                         .build();
                 StringBuilder sb = new StringBuilder("http://127.0.0.1:8081/predict?image=").append(image.replace("\\","/"))
                         .append("&x1=").append(x1)
                         .append("&y1=").append(y1)
                         .append("&x2=").append(x2)
-                        .append("&y2=").append(y2);
+                        .append("&y2=").append(y2)
+                        .append("&type=").append(cttype);
                 HttpGet get = new HttpGet(sb.toString());
                 CloseableHttpResponse response = httpClient.execute(get);
                 int statusCode = response.getStatusLine().getStatusCode();

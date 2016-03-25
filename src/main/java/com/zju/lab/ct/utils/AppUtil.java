@@ -112,4 +112,12 @@ public class AppUtil {
         return randomForest;
     }
 
+    public static RandomForest getLungRandomForestModel() throws IOException, ClassNotFoundException {
+        //实例化ObjectInputStream对象
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("RandomForest_Lung")));
+        //读取对象people,反序列化
+        RandomForest randomForest = (RandomForest) ois.readObject();
+        return randomForest;
+    }
+
 }
