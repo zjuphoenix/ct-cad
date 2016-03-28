@@ -10,7 +10,6 @@ import io.vertx.ext.web.handler.BodyHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -35,10 +34,6 @@ public class AppUtil {
             LOGGER.debug("Initialize configuration from path : {}", conf.getAbsolutePath());
             ObjectMapper mapper = new ObjectMapper();
             config = new JsonObject((Map<String, Object>) mapper.readValue(conf, Map.class));
-            /*URL url = getClass().getClassLoader().getResource(CONFIG_NAME);
-            LOGGER.debug("Initialize configuration from path : {}", url);
-            ObjectMapper mapper = new ObjectMapper();
-            config = new JsonObject((Map<String, Object>) mapper.readValue(url, Map.class));*/
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
         }

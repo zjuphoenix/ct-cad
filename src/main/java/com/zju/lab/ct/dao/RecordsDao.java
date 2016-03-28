@@ -10,10 +10,14 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -187,26 +191,37 @@ public class RecordsDao {
                 return;
             }
             SQLConnection conn = connection.result();
-            conn.update("delete from ct where recordId = "+id, updateResultAsyncResult1 -> {
-                if (updateResultAsyncResult1.succeeded()){
-                    String sql = "delete from record where id = "+id;
-                    conn.update(sql, updateResultAsyncResult -> {
-                        if (updateResultAsyncResult.succeeded()){
-                            LOGGER.info("delete record success!");
-                            responseMsgHandler.handle(new ResponseMsg<String>("delete record success!"));
-                        }
-                        else{
-                            LOGGER.error("delete record failed!");
-                            responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult.cause().getMessage()));
-                        }
-                    });
+            conn.query("select file from ct where recordId = "+id, resultSetAsyncResult -> {
+                List<JsonObject> jsonObjects = resultSetAsyncResult.result().getRows();
+                for (JsonObject obj : jsonObjects){
+                    File file = new File(AppUtil.getUploadDir()+File.separator+obj.getString("file"));
+                    if (file.exists()){
+                        file.delete();
+                    }
+                    else{
+                        LOGGER.info("ct image {} is not existing!",obj.getString("file"));
+                    }
                 }
-                else{
-                    LOGGER.error("delete ct by recordId failed!");
-                    responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult1.cause().getMessage()));
-                }
+                conn.update("delete from ct where recordId = "+id, updateResultAsyncResult1 -> {
+                    if (updateResultAsyncResult1.succeeded()){
+                        String sql = "delete from record where id = "+id;
+                        conn.update(sql, updateResultAsyncResult -> {
+                            if (updateResultAsyncResult.succeeded()){
+                                LOGGER.info("delete record success!");
+                                responseMsgHandler.handle(new ResponseMsg<String>("delete record success!"));
+                            }
+                            else{
+                                LOGGER.error("delete record failed!");
+                                responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult.cause().getMessage()));
+                            }
+                        });
+                    }
+                    else{
+                        LOGGER.error("delete ct by recordId failed!");
+                        responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult1.cause().getMessage()));
+                    }
+                });
             });
-
         });
     }
 }

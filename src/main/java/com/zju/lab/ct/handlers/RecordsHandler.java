@@ -5,7 +5,6 @@ import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
 import com.zju.lab.ct.dao.RecordsDao;
 import com.zju.lab.ct.dao.ReportDao;
-import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.ResponseUtil;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
@@ -14,8 +13,6 @@ import io.vertx.ext.web.RoutingContext;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * Created by wuhaitao on 2016/3/23.

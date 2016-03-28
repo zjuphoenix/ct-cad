@@ -13,7 +13,6 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -128,7 +127,7 @@ public class FeatureDao {
      * 从肝脏病变特征数据表feature中拉取所有数据，用于算法模型训练
      * @param samplesHandler
      */
-    public void fetchFeatureSamples(Handler<List<Double[]>> samplesHandler){
+    public void fetchLiverFeatureSamples(Handler<List<Double[]>> samplesHandler){
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
@@ -137,6 +136,68 @@ public class FeatureDao {
             else{
                 SQLConnection conn = connection.result();
                 conn.query("select * from feature", result -> {
+                    if (result.succeeded()){
+                        List<JsonObject> objs = result.result().getRows();
+                        List<Double[]> samples = new ArrayList<Double[]>(objs.size());
+                        if (objs != null && !objs.isEmpty()) {
+                            objs.forEach(obj -> {
+                                Double[] d = new Double[27];
+                                d[0] = obj.getDouble("f1");
+                                d[1] = obj.getDouble("f2");
+                                d[2] = obj.getDouble("f1");
+                                d[3] = obj.getDouble("f1");
+                                d[4] = obj.getDouble("f1");
+                                d[5] = obj.getDouble("f1");
+                                d[6] = obj.getDouble("f1");
+                                d[7] = obj.getDouble("f1");
+                                d[8] = obj.getDouble("f1");
+                                d[9] = obj.getDouble("f1");
+                                d[10] = obj.getDouble("f1");
+                                d[11] = obj.getDouble("f1");
+                                d[12] = obj.getDouble("f1");
+                                d[13] = obj.getDouble("f1");
+                                d[14] = obj.getDouble("f1");
+                                d[15] = obj.getDouble("f1");
+                                d[16] = obj.getDouble("f1");
+                                d[17] = obj.getDouble("f1");
+                                d[18] = obj.getDouble("f1");
+                                d[19] = obj.getDouble("f1");
+                                d[20] = obj.getDouble("f1");
+                                d[21] = obj.getDouble("f1");
+                                d[22] = obj.getDouble("f1");
+                                d[23] = obj.getDouble("f1");
+                                d[24] = obj.getDouble("f1");
+                                d[25] = obj.getDouble("f1");
+                                d[26] = (double)obj.getInteger("label");
+                                samples.add(d);
+                            });
+                            samplesHandler.handle(samples);
+                        }
+                        else{
+                            samplesHandler.handle(null);
+                        }
+                    }
+                    else{
+                        samplesHandler.handle(null);
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * 从肺部病变特征数据表feature中拉取所有数据，用于算法模型训练
+     * @param samplesHandler
+     */
+    public void fetchLungFeatureSamples(Handler<List<Double[]>> samplesHandler){
+        sqlite.getConnection(connection -> {
+            if (connection.failed()){
+                LOGGER.error("connection sqlite failed!");
+                samplesHandler.handle(null);
+            }
+            else{
+                SQLConnection conn = connection.result();
+                conn.query("select * from lungfeature", result -> {
                     if (result.succeeded()){
                         List<JsonObject> objs = result.result().getRows();
                         List<Double[]> samples = new ArrayList<Double[]>(objs.size());

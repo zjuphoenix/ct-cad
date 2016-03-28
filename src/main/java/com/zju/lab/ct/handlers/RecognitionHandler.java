@@ -6,23 +6,16 @@ import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
 import com.zju.lab.ct.dao.FeatureDao;
 import com.zju.lab.ct.model.HttpCode;
+import com.zju.lab.ct.verticle.EventBusMessage;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * Created by wuhaitao on 2016/2/25.
@@ -47,54 +40,27 @@ public class RecognitionHandler {
     @RouteMapping(value = "/predict", method = RouteMethod.POST)
     public Handler<RoutingContext> predictLesionType() {
         return ctx -> {
+            /*
+            * data:{
+            * "image":String,
+            * "x1":int,
+            * "y1":int,
+            * "x2":int,
+            * "y2":int,
+            * "type":String
+            * }
+            * */
             JsonObject data = ctx.getBodyAsJson();
-            String image = data.getString("image");
-            int x1 = data.getInteger("x1");
-            int y1 = data.getInteger("y1");
-            int x2 = data.getInteger("x2");
-            int y2 = data.getInteger("y2");
-            String cttype = data.getString("type");
-            URI uri = null;
-            HttpServerResponse re = ctx.response();
-            re.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
-            try {
-                uri = new URIBuilder().setHost("http://127.0.0.1:8081/predict")
-                        .setPort(8081)
-                        .setParameter("image", image)
-                        .setParameter("x1", String.valueOf(x1))
-                        .setParameter("y1", String.valueOf(y1))
-                        .setParameter("x2", String.valueOf(x2))
-                        .setParameter("y2", String.valueOf(y2))
-                        .setParameter("type", cttype)
-                        .build();
-                StringBuilder sb = new StringBuilder("http://127.0.0.1:8081/predict?image=").append(image.replace("\\","/"))
-                        .append("&x1=").append(x1)
-                        .append("&y1=").append(y1)
-                        .append("&x2=").append(x2)
-                        .append("&y2=").append(y2)
-                        .append("&type=").append(cttype);
-                HttpGet get = new HttpGet(sb.toString());
-                CloseableHttpResponse response = httpClient.execute(get);
-                int statusCode = response.getStatusLine().getStatusCode();
-                if (200 == statusCode) {
-                    HttpEntity entity = response.getEntity();
-                    if (entity != null) {
-                        String res = EntityUtils.toString(entity,"utf-8");
-                        JsonObject result = new JsonObject();
-                        result.put("lesion", res);
-                        re.end(result.encode());
-                    }
-                } else {
-                    re.setStatusCode(500).end();
+            ctx.vertx().eventBus().send(EventBusMessage.LESION_RECOGNITION, data.encode(), ar -> {
+                if (ar.succeeded()) {
+                    JsonObject result = new JsonObject();
+                    result.put("lesion", ar.result().body());
+                    ctx.response().end(result.encode());
                 }
-
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                re.setStatusCode(500).end();
-            } catch (IOException e) {
-                e.printStackTrace();
-                re.setStatusCode(500).end();
-            }
+                else{
+                    ctx.response().setStatusCode(HttpCode.BAD_REQUEST.getCode()).end();
+                }
+            });
         };
     }
 
@@ -171,6 +137,35 @@ public class RecognitionHandler {
                 result.put("result", e.getMessage());
                 re.setChunked(true).setStatusCode(HttpCode.NOT_FOUND.getCode()).end(result.encode());
             }
+        };
+    }
+
+    /**
+     * 生成算法识别模型
+     * /api/ct/generateRecognitionModel
+     * POST {
+     *     "type":int,
+     *     "treeNum":int
+     * }
+     * @return
+     */
+    @RouteMapping(value = "/generateRecognitionModel", method = RouteMethod.POST)
+    public Handler<RoutingContext> generateRandomForestModel(){
+        return ctx -> {
+            JsonObject data = ctx.getBodyAsJson();
+            int type = data.getInteger("type");
+            int treeNum = data.getInteger("treeNum");
+            String msg = type==1?EventBusMessage.LIVER_ALGORITHM_MODEL_GENERATE:EventBusMessage.LUNG_ALGORITHM_MODEL_GENERATE;
+            JsonObject json = new JsonObject();
+            json.put("treeNum", treeNum);
+            ctx.vertx().eventBus().send(msg, json.encode(), ar -> {
+                if (ar.succeeded()) {
+                    ctx.response().end((String)ar.result().body());
+                }
+                else{
+                    ctx.response().setStatusCode(HttpCode.INTERNAL_SERVER_ERROR.getCode()).end();
+                }
+            });
         };
     }
 }

@@ -14,10 +14,8 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -197,25 +195,20 @@ public class CTImageDao {
             SQLConnection conn = connection.result();
             conn.updateWithParams("insert into record(username) values(?)", new JsonArray().add(username), updateResultAsyncResult -> {
                 if (updateResultAsyncResult.succeeded()){
-                    conn.query("select max(id) from record", resultSetAsyncResult -> {
-                        if (resultSetAsyncResult.succeeded()){
-                            int id = resultSetAsyncResult.result().getRows().get(0).getInteger("max(id)");
-                            ctImages.forEach(ctImage -> {
-                                JsonArray params = new JsonArray().add(ctImage.getType()).add(ctImage.getFile()).add(ctImage.getDiagnosis()).add(id);
-                                String sql = "insert into ct(type,file,diagnosis,recordId) values(?,?,?,?)";
-                                conn.updateWithParams(sql, params, insertResult -> {
-                                    LOGGER.info("receive file");
-                                    if (insertResult.failed()) {
-                                        LOGGER.info("insert ct {} failed!", ctImage.getFile());
-                                    }
-                                });
-                            });
-                            responseMsgHandler.handle(new ResponseMsg<String>("insert ct success"));
-                        }
-                        else{
-                            responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, resultSetAsyncResult.cause().getMessage()));
-                        }
+                    JsonArray updateKeys = updateResultAsyncResult.result().getKeys();
+                    LOGGER.info("updateKeys:"+updateKeys.encode());
+                    int id = updateKeys.getInteger(0);
+                    ctImages.forEach(ctImage -> {
+                        JsonArray params = new JsonArray().add(ctImage.getType()).add(ctImage.getFile()).add(ctImage.getDiagnosis()).add(id);
+                        String sql = "insert into ct(type,file,diagnosis,recordId) values(?,?,?,?)";
+                        conn.updateWithParams(sql, params, insertResult -> {
+                            LOGGER.info("receive file");
+                            if (insertResult.failed()) {
+                                LOGGER.info("insert ct {} failed!", ctImage.getFile());
+                            }
+                        });
                     });
+                    responseMsgHandler.handle(new ResponseMsg<String>("insert ct success"));
                 }
                 else{
                     responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult.cause().getMessage()));

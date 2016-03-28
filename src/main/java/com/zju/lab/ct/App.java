@@ -1,7 +1,8 @@
 package com.zju.lab.ct;
 
-import com.zju.lab.ct.verticle.LesionRecognitionServer;
+import com.zju.lab.ct.verticle.LesionRecognitionVerticle;
 import com.zju.lab.ct.verticle.WebServer;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
@@ -17,12 +18,14 @@ public class App {
     public static void main(String[] args) {
         VertxOptions options = new VertxOptions();
         // 设置工作线程
-        options.setInternalBlockingPoolSize(20);
+        options.setWorkerPoolSize(20);
         options.setMetricsOptions(new DropwizardMetricsOptions().setEnabled(true));
         options.setMaxEventLoopExecuteTime(Long.MAX_VALUE);
         Vertx vertx = Vertx.vertx(options);
+        DeploymentOptions deploymentOptions = new DeploymentOptions();
+        deploymentOptions.setHa(true);
         vertx.deployVerticle(WebServer.class.getName());
-        vertx.deployVerticle(LesionRecognitionServer.class.getName());
+        vertx.deployVerticle(LesionRecognitionVerticle.class.getName());
 
         /** 添加钩子函数,保证vertx的正常关闭 */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

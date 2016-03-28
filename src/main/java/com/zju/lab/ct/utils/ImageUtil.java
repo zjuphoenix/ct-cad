@@ -1,7 +1,6 @@
 package com.zju.lab.ct.utils;
 
 import sun.misc.BASE64Decoder;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
