@@ -142,6 +142,17 @@ userModule.constant('ENDPOINT_URI', '/api')
                 });
         };
 
+        /*CT图像分割*/
+        $scope.goSegmentation = function(ctImage){
+            $state.go('segmentation', {
+                'id':ctImage.id,
+                'type':ctImage.type,
+                'file':ctImage.file,
+                'diagnosis':ctImage.diagnosis,
+                'recordId':ctImage.recordId
+            });
+        };
+
 
         //配置分页基本参数
         $scope.paginationConf = {

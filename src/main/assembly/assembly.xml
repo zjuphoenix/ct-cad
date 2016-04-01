@@ -32,7 +32,9 @@
             <!--
             打包工程根目录下src/main/scripts目录下的run.sh和run.bat文件到打成的包的根目录下的bin文件夹
             -->
-            <directory>src/main/scripts</directory>
+            <!--<directory>src/main/scripts</directory>-->
+            <!--拷贝appassembler-maven-plugin插件生成的执行脚本-->
+            <directory>target/project/bin</directory>
             <outputDirectory>/bin</outputDirectory>
             <includes>
                 <include>run.sh</include>
@@ -48,6 +50,13 @@
         </fileSet>
         <fileSet>
             <!--
+            打包工程根目录下segmentation文件夹下的所有文件到打成的包的根目录下的bin/segmentation文件夹下
+            -->
+            <directory>segmentation</directory>
+            <outputDirectory>/bin/segmentation</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <!--
             打包工程根目录下conf目录下的config.json文件到打成的包的根目录下的conf文件夹下
             -->
             <directory>conf</directory>
@@ -55,6 +64,7 @@
             <includes>
                 <include>config.json</include>
                 <include>RandomForest</include>
+                <include>RandomForest_Lung</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -64,7 +74,8 @@
             <directory>db</directory>
             <outputDirectory>/bin/db</outputDirectory>
             <includes>
-                <include>zhuojian</include>
+                <include>cad</include>
+                <include>cad.sql</include>
             </includes>
         </fileSet>
     </fileSets>

@@ -153,22 +153,6 @@
             <version>${itext-asian.version}</version>
         </dependency>
 
-        <!--cglib-->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>${cglib.version}</version>
-        </dependency>
-        <!--cglib end-->
-
-        <!--javassist-->
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>${javassist.version}</version>
-        </dependency>
-        <!--javassist end-->
-
         <!--json-->
         <dependency>
             <groupId>org.json</groupId>
@@ -179,25 +163,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- added by jql: maven jdk1.8 config -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -208,7 +173,8 @@
                 </configuration>
             </plugin>
 
-            <!--<plugin>
+            <!--打包源代码-->
+            <plugin>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>2.1</version>
                 <configuration>
@@ -222,10 +188,13 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
 
-            <!--mvn package appassembler:assemble-->
-            <!--<plugin>
+            <!--
+            mvn package appassembler:assemble
+            生成run.sh和run.bat执行脚本
+            -->
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
                 <version>1.2</version>
@@ -245,16 +214,15 @@
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
                     <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
                     <assembleDirectory>${project.build.directory}/project</assembleDirectory>
-                    &lt;!&ndash;
-                        -Xms300m:JVM初始分配内存
-                        -Xmx300m:JVM最大可用内存
-                        -Xss128k:设置每个线程的堆栈大小128k
+                    <!--
+                        -Xms200m:JVM初始分配内存
+                        -Xmx200m:JVM最大可用内存
+                        -Xss1m:设置每个线程的堆栈大小128k
                         -XX:NewRatio=4:设置年轻代（包括Eden和两个Survivor区）与年老代的比值（除去持久代）。设置为4，则年轻代与年老代所占比值为1：4，年轻代占整个堆栈的1/5
                         -XX:SurvivorRatio=4:设置年轻代中Eden区与Survivor区的大小比值。设置为4，则两个Survivor区与一个Eden区的比值为2:4，一个Survivor区占整个年轻代的1/6
-                        -XX:MaxPermSize=16m:设置持久代大小为16m
                         -XX:MaxTenuringThreshold=0:设置垃圾最大年龄。如果设置为0的话，则年轻代对象不经过Survivor区，直接进入年老代。
-                    &ndash;&gt;
-                    <extraJvmArguments>-Xmx200m -Xms200m -Xss128k -XX:NewRatio=4 -XX:SurvivorRatio=4 -XX:MaxPermSize=16m -XX:MaxTenuringThreshold=0</extraJvmArguments>
+                    -->
+                    <extraJvmArguments>-Xmx200m -Xms200m -Xss1m -XX:NewRatio=4 -XX:SurvivorRatio=4 -XX:MaxTenuringThreshold=0</extraJvmArguments>
                     <binFileExtensions>
                         <unix>.sh</unix>
                     </binFileExtensions>
@@ -271,7 +239,29 @@
                         </program>
                     </programs>
                 </configuration>
-            </plugin>-->
+            </plugin>
+
+            <!--打成zip包-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

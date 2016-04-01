@@ -7,4 +7,5 @@ public class EventBusMessage {
     public static String LESION_RECOGNITION = "lesion.recognition";
     public static String LIVER_ALGORITHM_MODEL_GENERATE = "liver.algorithm.model.generate";
     public static String LUNG_ALGORITHM_MODEL_GENERATE = "lung.algorithm.model.generate";
+    public static String LIVER_SEGMENTATION = "liver.segmentation";
 }

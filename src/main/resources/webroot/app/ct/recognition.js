@@ -22,7 +22,7 @@ angular.module('recognition', ['ui.router'])
     .controller('CADCtrl', function($scope, $stateParams, $http, BASE_URI, UPLOAD_FILE) {
         /*var img = $stateParams.ctImage;
          console.log(img);*/
-        console.log($stateParams)
+        /*console.log($stateParams);*/
         var x1,x2,y1,y2;
 
         $scope.addFeatureResult = '';
@@ -34,7 +34,7 @@ angular.module('recognition', ['ui.router'])
         $scope.id = $stateParams.id;
         $scope.type = $stateParams.type;
         $scope.diagnosis = $stateParams.diagnosis;
-        $scope.consultationId = $stateParams.consultationId;
+        $scope.recordId = $stateParams.recordId;
 
         $scope.updateDiagnosis = function(){
             $http.put(BASE_URI+'/api/ct',{

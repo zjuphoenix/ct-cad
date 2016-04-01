@@ -26,12 +26,15 @@ public class CTImageDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(CTImageDao.class);
 
     protected JDBCClient sqlite = null;
+    private JsonObject sqliteConfig = null;
+    private Vertx vertx;
 
     public CTImageDao(Vertx vertx) throws UnsupportedEncodingException {
-        JsonObject sqliteConfig = new JsonObject()
+        this.vertx = vertx;
+        this.sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))
                 .put("driver_class", AppUtil.configStr("db.driver_class"));
-        sqlite = JDBCClient.createShared(vertx, sqliteConfig, "ct");
+        this.sqlite = JDBCClient.createShared(vertx, sqliteConfig, "ct");
     }
 
     /**
@@ -40,6 +43,7 @@ public class CTImageDao {
      * @param ctImageHandler
      */
     public void getCTImageById(int id, Handler<ResponseMsg<JsonObject>> ctImageHandler){
+        /*sqlite = JDBCClient.createShared(vertx, sqliteConfig);*/
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
@@ -125,6 +129,7 @@ public class CTImageDao {
      * @param ctsHandler
      */
     public void getCTImages(int recordId, Handler<ResponseMsg<JsonObject>> ctsHandler){
+        /*sqlite = JDBCClient.createShared(vertx, sqliteConfig);*/
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");

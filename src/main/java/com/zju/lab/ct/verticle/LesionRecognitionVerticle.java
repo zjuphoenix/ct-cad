@@ -2,6 +2,7 @@ package com.zju.lab.ct.verticle;
 
 import com.zju.lab.ct.algorithm.feature.ImageFeature;
 import com.zju.lab.ct.algorithm.randomforest.RandomForest;
+import com.zju.lab.ct.algorithm.segmentation.RegionGrowing;
 import com.zju.lab.ct.dao.FeatureDao;
 import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.utils.AppUtil;
@@ -133,6 +134,26 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
             } catch (UnsupportedEncodingException e) {
                 LOGGER.error(e.getMessage(), e);
                 message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+            }
+        });
+        /*肝脏区域分割消息订阅*/
+        eventBus.consumer(EventBusMessage.LIVER_SEGMENTATION).handler(message -> {
+            LOGGER.info("receive segmentation message:"+message.body());
+            JSONObject params = new JSONObject((String)message.body());
+            String image = params.getString("image");
+            int seedX = params.getInt("seedX");
+            int seedY = params.getInt("seedY");
+            JsonObject obj = new JsonObject();
+            try {
+                String segImg = RegionGrowing.getSegmentationImage(image,seedX,seedY,20);
+                obj.put("code", HttpCode.OK.getCode());
+                obj.put("image", segImg);
+                message.reply(obj.encode());
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage(), e);
+                obj.put("code", HttpCode.INTERNAL_SERVER_ERROR.getCode());
+                obj.put("error", e.getMessage());
+                message.reply(obj.encode());
             }
         });
     }

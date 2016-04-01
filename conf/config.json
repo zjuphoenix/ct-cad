@@ -5,5 +5,10 @@
   "db.driver_class" : "org.sqlite.JDBC",
   "upload.path" : "upload",
   "RandomForest" : "conf/RandomForest",
-  "RandomForest_Lung" : "conf/RandomForest_Lung"
+  "RandomForest_Lung" : "conf/RandomForest_Lung",
+  "segmentation" : "segmentation",
+  "work.pool.size" :30,
+  "instance.num" :1,
+  "work.model" : false,
+  "multi-threaded.model" : true
 }

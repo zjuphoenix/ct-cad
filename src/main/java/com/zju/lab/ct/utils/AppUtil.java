@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -45,6 +46,10 @@ public class AppUtil {
 
     public static Integer configInt(String key) {
         return config.getInteger(key);
+    }
+
+    public static boolean configBoolean(String key) {
+        return config.getBoolean(key);
     }
 
     public static JDBCClient getJdbcClient(Vertx vertx) {
@@ -97,6 +102,10 @@ public class AppUtil {
             LOGGER.error(e.getMessage(), e);
             return BodyHandler.DEFAULT_UPLOADS_DIRECTORY;
         }*/
+    }
+
+    public static String getSegmentationDir(){
+        return AppUtil.configStr("segmentation");
     }
 
     public static RandomForest getRandomForestModel() throws IOException, ClassNotFoundException {

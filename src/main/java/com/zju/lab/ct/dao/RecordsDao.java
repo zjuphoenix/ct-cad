@@ -29,11 +29,16 @@ public class RecordsDao {
 
     protected JDBCClient sqlite = null;
 
+    private JsonObject sqliteConfig = null;
+
+    private Vertx vertx;
+
     public RecordsDao(Vertx vertx) throws UnsupportedEncodingException {
-        JsonObject sqliteConfig = new JsonObject()
+        this.vertx = vertx;
+        this.sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))
                 .put("driver_class", AppUtil.configStr("db.driver_class"));
-        sqlite = JDBCClient.createShared(vertx, sqliteConfig, "records");
+        this.sqlite = JDBCClient.createShared(vertx, sqliteConfig, "records");
     }
 
     /**
@@ -43,6 +48,7 @@ public class RecordsDao {
      * @param recordsHandler
      */
     public void getRecordsByPage(int pageIndex, int pageSize, Handler<ResponseMsg<JsonObject>> recordsHandler){
+        /*sqlite = JDBCClient.createShared(vertx, sqliteConfig, "records");*/
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");

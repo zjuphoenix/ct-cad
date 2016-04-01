@@ -56,6 +56,7 @@
                                 <!--<a ng-if="main.isPermitted('cad') && isLiver(ctImage.type)" class="btn btn-info" ng-click="goCAD(ctImage)">辅助诊断</a>
                                 <a ng-if="main.isPermitted('cad') && isLung(ctImage.type)" href="#/lung/{{ctImage.file}}" class="btn btn-info">肺部辅助诊断</a>-->
                                 <a ng-if="main.isPermitted('delete_ct')" class="btn btn-danger" ng-click="deleteCT(ctImage.id)">删除</a>
+                                <!--<a ng-if="main.isPermitted('cad')" class="btn btn-primary" ng-click="goSegmentation(ctImage)">分割</a>-->
                             </td>
                         </tr>
                         </tbody>

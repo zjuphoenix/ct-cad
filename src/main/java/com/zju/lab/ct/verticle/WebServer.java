@@ -95,6 +95,8 @@ public class WebServer extends AbstractVerticle {
 
         // Must be the latest handler to register
         router.route().handler(StaticHandler.create());
+        // Serve static resources from the /assets directory
+        /*router.route("/assets*//*").handler(StaticHandler.create("assets"));*/
 
         vertx.createHttpServer().requestHandler(router::accept).listen(port);
 
