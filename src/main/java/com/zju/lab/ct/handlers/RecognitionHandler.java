@@ -53,9 +53,10 @@ public class RecognitionHandler {
             JsonObject data = ctx.getBodyAsJson();
             ctx.vertx().eventBus().send(EventBusMessage.LESION_RECOGNITION, data.encode(), ar -> {
                 if (ar.succeeded()) {
-                    JsonObject result = new JsonObject();
+                    /*JsonObject result = new JsonObject();
                     result.put("lesion", ar.result().body());
-                    ctx.response().end(result.encode());
+                    ctx.response().end(result.encode());*/
+                    ctx.response().end((String)ar.result().body());
                 }
                 else{
                     ctx.response().setStatusCode(HttpCode.BAD_REQUEST.getCode()).end();
@@ -87,7 +88,7 @@ public class RecognitionHandler {
                 double[] feature = imageFeature.getFeature(image, x1, y1, x2, y2);
                 featureDao.addLiverFeature(feature, label, res -> {
                     if ("success".equals(res)){
-                        result.put("result", "特征入库成功");
+                        result.put("result", "标注成功");
                         re.setChunked(true).setStatusCode(HttpCode.OK.getCode()).end(result.encode());
                     }
                     else{
@@ -125,7 +126,7 @@ public class RecognitionHandler {
                 double[] feature = imageFeature.getFeature(image, x1, y1, x2, y2);
                 featureDao.addLungFeature(feature, label, res -> {
                     if ("success".equals(res)){
-                        result.put("result", "特征入库成功");
+                        result.put("result", "标注成功");
                         re.setChunked(true).setStatusCode(HttpCode.OK.getCode()).end(result.encode());
                     }
                     else{
@@ -160,9 +161,11 @@ public class RecognitionHandler {
             json.put("treeNum", treeNum);
             ctx.vertx().eventBus().send(msg, json.encode(), ar -> {
                 if (ar.succeeded()) {
+                    LOGGER.info("generate recognition model success!");
                     ctx.response().end((String)ar.result().body());
                 }
                 else{
+                    LOGGER.info("generate recognition model failed!");
                     ctx.response().setStatusCode(HttpCode.INTERNAL_SERVER_ERROR.getCode()).end();
                 }
             });

@@ -1,0 +1,30 @@
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">诊断结果</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>病变类型</th>
+                            <th>病变概率</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="lesion in result">
+                            <td>{{lesion.type}}</td>
+                            <td>{{lesion.probability}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->

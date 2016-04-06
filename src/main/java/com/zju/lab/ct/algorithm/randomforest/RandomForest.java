@@ -7,6 +7,8 @@ import java.util.*;
  * Created by wuhaitao on 2016/2/23.
  */
 public class RandomForest implements Serializable{
+
+    private static long serialVersionUID = -928033976301546560L;
     private int treeNum;
     private int typeNum;
     private List<CARTTree> trees;
@@ -53,5 +55,23 @@ public class RandomForest implements Serializable{
             }
         }
         return predict;
+    }
+
+    public Map<Integer, Integer> predictResult(double[] sample){
+        Map<Integer,Integer> res = new HashMap<>(typeNum);
+        trees.forEach(tree -> {
+            int type = tree.predictType(sample);
+            if (res.containsKey(type)){
+                res.replace(type, res.get(type)+1);
+            }
+            else{
+                res.put(type, 1);
+            }
+        });
+        return res;
+    }
+
+    public int getTreeNum() {
+        return treeNum;
     }
 }

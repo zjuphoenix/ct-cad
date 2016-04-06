@@ -8,13 +8,17 @@ import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.ConfigUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.dns.impl.netty.decoder.DomainDecoder;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by wuhaitao on 2016/3/27.
@@ -44,19 +48,36 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
             int x2 = params.getInt("x2");
             int y2 = params.getInt("y2");
             String cttype = params.getString("type");
-            int type = 0;
+            Map<Integer, Integer> type = null;
+            int number = 40;
             try {
+                JsonObject lesion = null;
                 if ("肝脏".equals(cttype)){
-                    type = randomforest_Liver.predictType(imageFeature.getFeature(image, x1, y1, x2, y2));
-                    message.reply(liverLesion.getString(String.valueOf(type)));
+                    /*type = randomforest_Liver.predictType(imageFeature.getFeature(image, x1, y1, x2, y2));
+                    message.reply(liverLesion.getString(String.valueOf(type)));*/
+                    type = randomforest_Liver.predictResult(imageFeature.getFeature(image, x1, y1, x2, y2));
+                    number = randomforest_Liver.getTreeNum();
+                    lesion = liverLesion;
                 }
                 else if("肺部".equals(cttype)){
-                    type = randomforest_Lung.predictType(imageFeature.getFeature(image, x1, y1, x2, y2));
-                    message.reply(lungLesion.getString(String.valueOf(type)));
+                    /*type = randomforest_Lung.predictType(imageFeature.getFeature(image, x1, y1, x2, y2));
+                    message.reply(lungLesion.getString(String.valueOf(type)));*/
+                    type = randomforest_Lung.predictResult(imageFeature.getFeature(image, x1, y1, x2, y2));
+                    number = randomforest_Lung.getTreeNum();
+                    lesion = lungLesion;
                 }
                 else{
                     message.fail(HttpCode.BAD_REQUEST.getCode(),"ct type invalid!");
+                    return;
                 }
+                int treeNum = number;
+                JsonObject lesionType = lesion;
+                JsonArray res = new JsonArray();
+                type.forEach((key, value) -> {
+                    /*res.add(new JsonObject().put(lesionType.getString(String.valueOf(key.intValue())),value.doubleValue()/treeNum*100+"%"));*/
+                    res.add(new JsonObject().put("type",lesionType.getString(String.valueOf(key.intValue()))).put("probability",value.doubleValue()/treeNum*100+"%"));
+                });
+                message.reply(res.encode());
             } catch (IOException e) {
                 message.reply(e.getMessage());
                 LOGGER.error(e.getMessage(), e);
@@ -81,7 +102,10 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
                         ObjectOutputStream oos = null;
                         try {
                             File file = new File("conf/RandomForest");
-                            file.deleteOnExit();
+                            if (file.exists()){
+                                file.delete();
+                                file.createNewFile();
+                            }
                             oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest"));
                             //将对象写入文件
                             oos.writeObject(randomforest);
@@ -118,7 +142,10 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
                         ObjectOutputStream oos = null;
                         try {
                             File file = new File("conf/RandomForest_Lung");
-                            file.deleteOnExit();
+                            if (file.exists()){
+                                file.delete();
+                                file.createNewFile();
+                            }
                             oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest_Lung"));
                             //将对象写入文件
                             oos.writeObject(randomforest);

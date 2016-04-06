@@ -1,0 +1,30 @@
+<link rel="stylesheet" href="assets/Jcrop/css/jquery.Jcrop.css" type="text/css"/>
+<script src="assets/Jcrop/js/jquery.Jcrop.js"></script>
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">划取疑似病变区域</h3>
+                </div>
+                <div class="box-body">
+                    <img alt="[Jcrop Example]" src="{{ct}}" id="labelCT" class="img-polaroid" />
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">病变类型</label>
+                        <div class="col-sm-6">
+                            <select class="form-control input-xlarge" ng-model="label" ng-options="y for (x, y) in lesion">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <button class="btn btn-success pull-left" type="submit" ng-click="addFeatureLabel()">标注</button>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+    </div>
+</section>

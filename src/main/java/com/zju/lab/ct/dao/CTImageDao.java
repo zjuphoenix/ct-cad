@@ -191,35 +191,35 @@ public class CTImageDao {
      */
     public void addCTImages(String username, List<CTImage> ctImages, Handler<ResponseMsg<String>> responseMsgHandler){
         sqlite.getConnection(connection -> {
-            if (connection.failed()){
+            if (connection.succeeded()) {
+                LOGGER.info("start receive file");
+                SQLConnection conn = connection.result();
+                conn.updateWithParams("insert into record(username) values(?)", new JsonArray().add(username), updateResultAsyncResult -> {
+                    if (updateResultAsyncResult.succeeded()) {
+                        JsonArray updateKeys = updateResultAsyncResult.result().getKeys();
+                        LOGGER.info("updateKeys:" + updateKeys.encode());
+                        int id = updateKeys.getInteger(0);
+                        ctImages.forEach(ctImage -> {
+                            JsonArray params = new JsonArray().add(ctImage.getType()).add(ctImage.getFile()).add(ctImage.getDiagnosis()).add(id);
+                            String sql = "insert into ct(type,file,diagnosis,recordId) values(?,?,?,?)";
+                            conn.updateWithParams(sql, params, insertResult -> {
+                                LOGGER.info("receive file");
+                                if (insertResult.failed()) {
+                                    LOGGER.info("insert ct {} failed!", ctImage.getFile());
+                                }
+                            });
+                        });
+                        responseMsgHandler.handle(new ResponseMsg<String>("insert ct success"));
+                    } else {
+                        responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult.cause().getMessage()));
+                    }
+                });
+                LOGGER.info("receive file finished");
+            }
+            else{
                 LOGGER.error("connection sqlite failed!");
                 responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
-                return;
             }
-            LOGGER.info("start receive file");
-            SQLConnection conn = connection.result();
-            conn.updateWithParams("insert into record(username) values(?)", new JsonArray().add(username), updateResultAsyncResult -> {
-                if (updateResultAsyncResult.succeeded()){
-                    JsonArray updateKeys = updateResultAsyncResult.result().getKeys();
-                    LOGGER.info("updateKeys:"+updateKeys.encode());
-                    int id = updateKeys.getInteger(0);
-                    ctImages.forEach(ctImage -> {
-                        JsonArray params = new JsonArray().add(ctImage.getType()).add(ctImage.getFile()).add(ctImage.getDiagnosis()).add(id);
-                        String sql = "insert into ct(type,file,diagnosis,recordId) values(?,?,?,?)";
-                        conn.updateWithParams(sql, params, insertResult -> {
-                            LOGGER.info("receive file");
-                            if (insertResult.failed()) {
-                                LOGGER.info("insert ct {} failed!", ctImage.getFile());
-                            }
-                        });
-                    });
-                    responseMsgHandler.handle(new ResponseMsg<String>("insert ct success"));
-                }
-                else{
-                    responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, updateResultAsyncResult.cause().getMessage()));
-                }
-            });
-            LOGGER.info("receive file finished");
         });
     }
 

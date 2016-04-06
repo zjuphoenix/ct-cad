@@ -1,7 +1,7 @@
 /**
  * Created by wuhaitao on 2016/2/25.
  */
-var userModule = angular.module('ct', ['ui.router']);
+var userModule = angular.module('ct', ['ui.router', 'recognition']);
 userModule.constant('ENDPOINT_URI', '/api')
     .constant('BASE_URI', '')
     .constant('UPLOAD_FILE', 'upload/')
@@ -67,8 +67,8 @@ userModule.constant('ENDPOINT_URI', '/api')
                 .then(function(result){
                     $scope.ctImages = result.data.ct;
                     $scope.paginationConf.totalItems = result.data.count;
-                    console.log($scope.ctImages);
-                    console.log($scope.paginationConf.totalItems);
+                    /*console.log($scope.ctImages);
+                    console.log($scope.paginationConf.totalItems);*/
                 },function(error){
                     console.log(error);
                 });
@@ -175,5 +175,5 @@ userModule.constant('ENDPOINT_URI', '/api')
         $scope.diagnosis = $stateParams.diagnosis;
         $scope.recordId = $stateParams.recordId;
         $scope.file = UPLOAD_FILE+$stateParams.file;
-    });
+    })
     ;
