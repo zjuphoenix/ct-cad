@@ -170,8 +170,15 @@ angular.module('auth', ['angular-storage', 'ui.router'])
                         console.log('access_token:'+response.data.id);
                         user.access_token = response.data.id;
                         UserContext.setCurrentUser(user);
+                        console.log('login:'+user);
                         $rootScope.$broadcast('authorized');
-                        $state.go('uploadFiles');
+                        if(user.username == 'admin'){
+                            $state.go('records');
+                        }
+                        else{
+                            $state.go('uploadFiles');
+                        }
+
                     } else {
                         login.message = 'Wrong username or password';
                     }

@@ -116,5 +116,23 @@ public class CTImageHandler {
             });
         };
     }
+
+    /**
+     * url: /api/ct/cancer/:recordId
+     * GET
+     * 根据recordId获取全局特征识别为肝癌的CT图像
+     * 返回类型JsonObject key:{cancer}
+     * @return
+     */
+    @RouteMapping(method = RouteMethod.GET, value = "/cancer/:recordId")
+    public Handler<RoutingContext> getCancerImages(){
+        return  ctx -> {
+            int recordId = Integer.parseInt(ctx.request().getParam("recordId"));
+            ctImageDao.getCancerImages(recordId, result -> {
+                HttpServerResponse response = ctx.response();
+                ResponseUtil.responseContent(response, result);
+            });
+        };
+    }
 }
 

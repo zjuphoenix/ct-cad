@@ -45,7 +45,7 @@ public class UserHandler {
             LOGGER.debug("Start get list");
             userDao.getUsers(responseMsg -> {
                 HttpServerResponse response = ctx.response();
-                response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+                //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
                 if (responseMsg.getContent() instanceof List){
                     JsonArray array = new JsonArray();
                     List<JsonObject> jsonObjects = (List<JsonObject>) responseMsg.getContent();
@@ -76,7 +76,7 @@ public class UserHandler {
             int role = Integer.parseInt(user.getString("role"));
             String roleStr = "";
             HttpServerResponse response = ctx.response();
-            response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+            //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
             try {
                 roleStr = RoleMap.getRole(role);
             } catch (Exception e) {
@@ -102,7 +102,7 @@ public class UserHandler {
         return ctx -> {
             String username = ctx.request().getParam("username");
             HttpServerResponse response = ctx.response();
-            response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+            //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
             if (StringUtils.isBlank(username)) {
                 LOGGER.error("Username is blank");
                 ctx.fail(404);
@@ -140,7 +140,7 @@ public class UserHandler {
             JsonObject user = ctx.getBodyAsJson();
             String username = user.getString("username");
             HttpServerResponse response = ctx.response();
-            response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+            //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
             if (StringUtils.isBlank(username)) {
                 LOGGER.error("Username is blank");
                 ctx.fail(404);
@@ -177,7 +177,7 @@ public class UserHandler {
             String username = ctx.request().getParam("username");
             userDao.deleteUser(username, stringResponseMsg -> {
                 HttpServerResponse response = ctx.response();
-                response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+                //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
                 response.setChunked(true).setStatusCode(stringResponseMsg.getCode().getCode()).end(stringResponseMsg.getContent());
             });
         };

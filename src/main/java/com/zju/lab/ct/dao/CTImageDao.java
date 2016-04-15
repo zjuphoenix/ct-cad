@@ -6,6 +6,7 @@ import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.model.ResponseMsg;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.JDBCConnUtil;
+import com.zju.lab.ct.verticle.EventBusMessage;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -207,6 +209,13 @@ public class CTImageDao {
                                 if (insertResult.failed()) {
                                     LOGGER.info("insert ct {} failed!", ctImage.getFile());
                                 }
+                                else{
+                                    JsonArray insertKeys = insertResult.result().getKeys();
+                                    int ctId = insertKeys.getInteger(0);
+                                    LOGGER.info("ctId:{}", ctId);
+                                    JsonObject data = new JsonObject().put("file", ctImage.getFile()).put("id", ctId);
+                                    vertx.eventBus().send(EventBusMessage.GLOBAL_FEATURE_RECOGNITION, data.encode());
+                                }
                             });
                         });
                         responseMsgHandler.handle(new ResponseMsg<String>("insert ct success"));
@@ -291,6 +300,76 @@ public class CTImageDao {
                         ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, result.cause().getMessage()));
                         JDBCConnUtil.close(conn);
                     }
+                });
+            }
+        });
+    }
+
+    /**
+     * 更新CT图像全局特征识别结果
+     * @param id
+     * @param recognition
+     * @param responseMsgHandler
+     */
+    public void updateRecognition(int id, int recognition, Handler<ResponseMsg<String>> responseMsgHandler){
+        sqlite.getConnection(connection -> {
+            if (connection.failed()){
+                LOGGER.error("connection sqlite failed!");
+                responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
+                return;
+            }
+            SQLConnection conn = connection.result();
+            JsonArray params = new JsonArray().add(recognition).add(id);
+            String sql = "update ct set recognition = ? where id = ?";
+            conn.updateWithParams(sql, params, insertResult -> {
+                if (insertResult.succeeded()) {
+                    LOGGER.info("update ct recognition success!");
+                    responseMsgHandler.handle(new ResponseMsg("update ct recognition success!"));
+                } else {
+                    LOGGER.error("update ct recognition failed!");
+                    responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, insertResult.cause().getMessage()));
+                }
+                JDBCConnUtil.close(conn);
+            });
+        });
+    }
+
+    /**
+     * 根据recordId获取全局特征智能识别为肝癌CT图像
+     * @param recordId
+     * @param ctsHandler
+     */
+    public void getCancerImages(int recordId, Handler<ResponseMsg<JsonObject>> ctsHandler){
+        /*sqlite = JDBCClient.createShared(vertx, sqliteConfig);*/
+        sqlite.getConnection(connection -> {
+            if (connection.failed()){
+                LOGGER.error("connection sqlite failed!");
+                ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
+            }
+            else{
+                SQLConnection conn = connection.result();
+                JsonArray params = new JsonArray().add(recordId);
+                conn.queryWithParams("select * from ct where recordId = ?", params, result -> {
+                    if (result.succeeded()) {
+                        List<JsonObject> objs = result.result().getRows();
+                        List<JsonObject> cancer = new ArrayList<>();
+                        JsonObject jsonObject = new JsonObject();
+                        jsonObject.put("status", 1);
+                        for (JsonObject obj : objs){
+                            if (obj.getInteger("recognition") == null){
+                                jsonObject.put("status", -1);
+                            }
+                            else if(obj.getInteger("recognition").intValue() == 2){
+                                cancer.add(obj);
+                            }
+                        }
+                        jsonObject.put("cancer",cancer);
+                        ctsHandler.handle(new ResponseMsg<JsonObject>(jsonObject));
+                    } else {
+                        LOGGER.error("query ct data failed!");
+                        ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, result.cause().getMessage()));
+                    }
+                    JDBCConnUtil.close(conn);
                 });
             }
         });

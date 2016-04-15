@@ -105,7 +105,7 @@ public class UploadHandler {
         return  ctx -> {
             String image = ctx.request().getParam("image");
             HttpServerResponse response = ctx.response();
-            response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+            //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
             response.setChunked(true);
             response.sendFile(AppUtil.getUploadDir() + File.separator + image);
         };

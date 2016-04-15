@@ -27,6 +27,7 @@
         <cglib.version>3.2.1</cglib.version>
         <javassist.version>3.20.0-GA</javassist.version>
         <json.version>20160212</json.version>
+        <opencv.version>1.1</opencv.version>
     </properties>
 
     <dependencies>
@@ -159,6 +160,23 @@
             <artifactId>json</artifactId>
             <version>${json.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.zju.lab</groupId>
+            <artifactId>segmentation</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zju.lab</groupId>
+            <artifactId>javabuilder</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!--opencv-->
+        <!--<dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>${opencv.version}</version>
+        </dependency>-->
     </dependencies>
 
     <build>
@@ -222,7 +240,7 @@
                         -XX:SurvivorRatio=4:设置年轻代中Eden区与Survivor区的大小比值。设置为4，则两个Survivor区与一个Eden区的比值为2:4，一个Survivor区占整个年轻代的1/6
                         -XX:MaxTenuringThreshold=0:设置垃圾最大年龄。如果设置为0的话，则年轻代对象不经过Survivor区，直接进入年老代。
                     -->
-                    <extraJvmArguments>-Xmx200m -Xms200m -Xss1m -XX:NewRatio=4 -XX:SurvivorRatio=4 -XX:MaxTenuringThreshold=0</extraJvmArguments>
+                    <extraJvmArguments>-Xmx1024m -Xms1024m -Xss10m -XX:NewRatio=4 -XX:SurvivorRatio=4 -XX:MaxTenuringThreshold=0</extraJvmArguments>
                     <binFileExtensions>
                         <unix>.sh</unix>
                     </binFileExtensions>

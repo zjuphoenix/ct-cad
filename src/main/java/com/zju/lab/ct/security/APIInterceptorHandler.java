@@ -24,7 +24,6 @@ public class APIInterceptorHandler extends AuthHandlerImpl {
     public void handle(RoutingContext context) {
         Session session = context.session();
         HttpServerResponse response = context.response();
-        response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
         if (session != null) {
             User user = context.user();
             if (user != null) {

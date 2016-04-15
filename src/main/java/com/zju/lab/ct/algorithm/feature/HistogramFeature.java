@@ -12,11 +12,13 @@ public class HistogramFeature implements Feature{
 
     @Override
     public double[] getFeature(String image, int x1, int y1, int x2, int y2) throws IOException {
-        /*URL url = HistogramFeature.class.getClassLoader().getResource("webroot/" + image);
-        String img = URLDecoder.decode(url.getFile(), "UTF-8");
-        File file = new File(img);*/
         File file = new File(image);
         BufferedImage bi = ImageIO.read(file);
+        return getFeature(bi, x1, y1, x2, y2);
+    }
+
+    @Override
+    public double[] getFeature(BufferedImage image, int x1, int y1, int x2, int y2) throws IOException {
         double sgray[] = new double[256];
         for(int i=0; i<256; i++) {
             sgray[i] = 0;
@@ -24,10 +26,11 @@ public class HistogramFeature implements Feature{
         int width = x2-x1+1;
         int height = y2-y1+1;
         int size = width * height;
+        int valid = 0;
 
         for(int i=x1; i<=x2; i++) {
             for(int j=y1; j<=y2; j++) {
-                int rgb = bi.getRGB(i, j);
+                int rgb = image.getRGB(i, j);
 
                 /*应为使用getRGB(i,j)获取的该点的颜色值是ARGB，
                 而在实际应用中使用的是RGB，所以需要将ARGB转化成RGB，
@@ -36,12 +39,15 @@ public class HistogramFeature implements Feature{
                 int g = (rgb & 0xff00) >> 8;
                 int b = (rgb & 0xff);
                 int gray = (int)(r * 0.3 + g * 0.59 + b * 0.11);    //计算灰度值
-                sgray[gray] ++;
+                if (gray != 0) {
+                    sgray[gray]++;
+                    valid++;
+                }
             }
         }
 
         for(int gray=0; gray<256; gray++) {
-            sgray[gray] /= size;
+            sgray[gray] /= valid;
             if (sgray[gray] < Double.MIN_VALUE){
                 sgray[gray] = Double.MIN_VALUE;
             }

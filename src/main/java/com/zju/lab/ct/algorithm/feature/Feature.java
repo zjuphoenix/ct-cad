@@ -1,5 +1,6 @@
 package com.zju.lab.ct.algorithm.feature;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 /**
@@ -7,4 +8,5 @@ import java.io.IOException;
  */
 public interface Feature {
     double[] getFeature(String image, int x1, int y1, int x2, int y2) throws IOException;
+    double[] getFeature(BufferedImage image, int x1, int y1, int x2, int y2) throws IOException;
 }

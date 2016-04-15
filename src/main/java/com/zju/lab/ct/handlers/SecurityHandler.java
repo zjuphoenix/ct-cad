@@ -33,7 +33,7 @@ public class SecurityHandler {
             JDBCClient client = AppUtil.getJdbcClient(Vertx.vertx());
             client.getConnection(conn -> {
                 HttpServerResponse response = ctx.response();
-                response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+                //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
                 if (conn.failed()) {
                     LOGGER.error(conn.cause().getMessage(), conn.cause());
                     ctx.fail(400);

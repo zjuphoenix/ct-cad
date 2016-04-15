@@ -39,7 +39,7 @@ public class RecordsHandler {
             int pageIndex = data.getInteger("pageIndex");
             int pageSize = data.getInteger("pageSize");
             String username = data.getString("username");
-            LOGGER.info("get records...");
+            /*LOGGER.info("get records...");*/
             if (StringUtils.isEmpty(username)) {
                 recordsDao.getRecordsByPage(pageIndex, pageSize, result -> {
                     HttpServerResponse response = ctx.response();
@@ -89,6 +89,7 @@ public class RecordsHandler {
 
     /**
      * 根据id删除CT病历
+     * DELETE /api/records/:id
      * @return
      */
     @RouteMapping(method = RouteMethod.DELETE, value = "/:id")
@@ -128,7 +129,7 @@ public class RecordsHandler {
         return  ctx -> {
             String report = ctx.request().getParam("report");
             HttpServerResponse response = ctx.response();
-            response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+            //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
             response.setChunked(true);
             response.sendFile(report);
         };

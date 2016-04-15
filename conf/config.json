@@ -6,6 +6,7 @@
   "upload.path" : "upload",
   "RandomForest" : "conf/RandomForest",
   "RandomForest_Lung" : "conf/RandomForest_Lung",
+  "GlobalFeatureRecognition" : "conf/GlobalFeatureRecognition",
   "segmentation" : "segmentation",
   "work.pool.size" :30,
   "instance.num" :1,

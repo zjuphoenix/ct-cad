@@ -13,10 +13,10 @@ import io.vertx.core.json.JsonObject;
 public class ResponseUtil {
 
     public static void responseContent(HttpServerResponse response, ResponseMsg responseMsg) throws ContentTypeInvalidException{
-        response.putHeader("Access-Control-Allow-Origin", "*")
+        /*response.putHeader("Access-Control-Allow-Origin", "*")
                 .putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS")
                 .putHeader("Access-Control-Max-Age", "60")
-                .putHeader("Access-Control-Allow-Credentials", "false");
+                .putHeader("Access-Control-Allow-Credentials", "false");*/
         response.setChunked(true);
         if (responseMsg.getCode().getCode() == HttpCode.OK.getCode()){
             Object content = responseMsg.getContent();

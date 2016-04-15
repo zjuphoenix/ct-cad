@@ -83,7 +83,7 @@ public class RecognitionHandler {
             ImageFeature imageFeature = new ImageFeature();
             JsonObject result = new JsonObject();
             HttpServerResponse re = ctx.response();
-            re.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+            //re.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
             try {
                 double[] feature = imageFeature.getFeature(image, x1, y1, x2, y2);
                 featureDao.addLiverFeature(feature, label, res -> {
@@ -121,7 +121,7 @@ public class RecognitionHandler {
             ImageFeature imageFeature = new ImageFeature();
             JsonObject result = new JsonObject();
             HttpServerResponse re = ctx.response();
-            re.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
+            //re.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
             try {
                 double[] feature = imageFeature.getFeature(image, x1, y1, x2, y2);
                 featureDao.addLungFeature(feature, label, res -> {

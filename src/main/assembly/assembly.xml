@@ -65,6 +65,7 @@
                 <include>config.json</include>
                 <include>RandomForest</include>
                 <include>RandomForest_Lung</include>
+                <include>GlobalFeatureRecognition</include>
             </includes>
         </fileSet>
         <fileSet>

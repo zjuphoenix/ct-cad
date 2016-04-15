@@ -124,4 +124,12 @@ public class AppUtil {
         return randomForest;
     }
 
+    public static RandomForest getGlobalFeatureRecognitionModel() throws IOException, ClassNotFoundException {
+        //实例化ObjectInputStream对象
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("GlobalFeatureRecognition")));
+        //读取对象people,反序列化
+        RandomForest randomForest = (RandomForest) ois.readObject();
+        return randomForest;
+    }
+
 }

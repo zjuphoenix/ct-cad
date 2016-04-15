@@ -1,5 +1,8 @@
 package com.zju.lab.ct.algorithm.feature;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -18,7 +21,13 @@ public class ImageFeature implements Feature{
 
     @Override
     public double[] getFeature(String image, int x1, int y1, int x2, int y2) throws IOException {
+        File file = new File(image);
+        BufferedImage bi = ImageIO.read(file);
+        return getFeature(bi, x1, y1, x2, y2);
+    }
 
+    @Override
+    public double[] getFeature(BufferedImage image, int x1, int y1, int x2, int y2) throws IOException {
         double[] feature = new double[27];
         double[] f1 = histogramFeature.getFeature(image, x1, y1, x2, y2);
         double[] f2 = glcmFeature.getFeature(image, x1, y1, x2, y2);

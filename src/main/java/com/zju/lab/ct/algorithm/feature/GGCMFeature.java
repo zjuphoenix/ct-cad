@@ -11,6 +11,13 @@ import java.io.IOException;
 public class GGCMFeature implements Feature{
     @Override
     public double[] getFeature(String image, int x1, int y1, int x2, int y2) throws IOException {
+        File file = new File(image);
+        BufferedImage bi = ImageIO.read(file);
+        return getFeature(bi, x1, y1, x2, y2);
+    }
+
+    @Override
+    public double[] getFeature(BufferedImage image, int x1, int y1, int x2, int y2) throws IOException {
         // 灰度梯度共生矩阵 H
         //归一化灰度梯度矩阵 H_basic
 
@@ -31,16 +38,12 @@ public class GGCMFeature implements Feature{
         // 逆差矩 T15
 
         int gray=256;
-        /*URL url = GGCMFeature.class.getClassLoader().getResource("webroot/" + image);
-        File file = new File(URLDecoder.decode(url.getFile(), "UTF-8"));*/
-        File file = new File(image);
-        BufferedImage bi = ImageIO.read(file);
         int C = x2-x1+1;
         int R = y2-y1+1;
         int[][] img = new int[R][C];
         for(int i=x1; i<=x2; i++) {
             for(int j=y1; j<=y2; j++) {
-                int rgb = bi.getRGB(i, j);
+                int rgb = image.getRGB(i, j);
                 /*应为使用getRGB(i,j)获取的该点的颜色值是ARGB，
                 而在实际应用中使用的是RGB，所以需要将ARGB转化成RGB，
                 即bufImg.getRGB(i, j) & 0xFFFFFF。*/
@@ -56,7 +59,9 @@ public class GGCMFeature implements Feature{
         double[][] GM=new double[R-1][C-1];
         for (int i = 0; i < R-1; i++) {
             for (int j = 0; j < C-1; j++) {
-                GM[i][j] = Math.sqrt(Math.pow(img[i][j+1]-img[i][j],2)+Math.pow(img[i+1][j]-img[i][j],2));
+                if (img[i][j+1]!=0&&img[i][j]!=0&&img[i+1][j]!=0) {
+                    GM[i][j] = Math.sqrt(Math.pow(img[i][j + 1] - img[i][j], 2) + Math.pow(img[i + 1][j] - img[i][j], 2));
+                }
             }
         }
 
@@ -86,17 +91,22 @@ public class GGCMFeature implements Feature{
             }
         }
 
+        int valid = 0;
         //计算灰度梯度共生矩阵
         //梯度矩阵比轨度矩阵维数少1，忽略灰度矩阵最外围
         int[][] H=new int[gray][new_gray];
         for (int i = 0; i < R-1; i++) {
             for (int j = 0; j < C-1; j++) {
-                H[img[i][j]][new_GM[i][j]] = H[img[i][j]][new_GM[i][j]] + 1;
+                if(img[i][j] != 0) {
+                    valid++;
+                    H[img[i][j]][new_GM[i][j]] = H[img[i][j]][new_GM[i][j]] + 1;
+                }
             }
         }
 
         //归一化灰度梯度矩阵 H_basic
-        int total=(R-1)*(C-1);
+        /*int total=(R-1)*(C-1);*/
+        int total=valid;
         double[][] H_basic = new double[gray][new_gray];
         for (int i = 0; i < gray; i++) {
             for (int j = 0; j < new_gray; j++) {

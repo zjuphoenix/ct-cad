@@ -11,6 +11,13 @@ import java.io.IOException;
 public class GLCMFeature implements Feature{
     @Override
     public double[] getFeature(String image, int x1, int y1, int x2, int y2) throws IOException {
+        File file = new File(image);
+        BufferedImage bi = ImageIO.read(file);
+        return getFeature(bi, x1, y1, x2, y2);
+    }
+
+    @Override
+    public double[] getFeature(BufferedImage image, int x1, int y1, int x2, int y2) throws IOException {
         //灰度共生矩阵为p2;
         //f1:二阶矩
         //f2:相关度
@@ -18,10 +25,6 @@ public class GLCMFeature implements Feature{
         //f4:对比度
         //f5:逆差矩
         //f6:和方差
-        /*URL url = GLCMFeature.class.getClassLoader().getResource("webroot/" + image);
-        File file = new File(URLDecoder.decode(url.getFile(), "UTF-8"));*/
-        File file = new File(image);
-        BufferedImage bi = ImageIO.read(file);
         int C = x2-x1+1;
         int R = y2-y1+1;
         int size = R * C;
@@ -30,7 +33,7 @@ public class GLCMFeature implements Feature{
         int[][] img = new int[R][C];
         for(int i=x1; i<=x2; i++) {
             for(int j=y1; j<=y2; j++) {
-                int rgb = bi.getRGB(i, j);
+                int rgb = image.getRGB(i, j);
                 /*应为使用getRGB(i,j)获取的该点的颜色值是ARGB，
                 而在实际应用中使用的是RGB，所以需要将ARGB转化成RGB，
                 即bufImg.getRGB(i, j) & 0xFFFFFF。*/

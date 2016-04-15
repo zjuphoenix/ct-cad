@@ -27,6 +27,11 @@ userModule.constant('ENDPOINT_URI', '/api')
             },
             templateUrl: 'app/ct/diagnosis.html',
             controller: 'DiagnosisCtrl'
+        })
+        $stateProvider.state('cancer_detection', {
+            url: '/cancer/:recordId',
+            templateUrl: 'app/ct/cancer.html',
+            controller: 'CancerCtrl'
         });
     })
     .service('CTImageService', function($http, ENDPOINT_URI){
@@ -176,4 +181,19 @@ userModule.constant('ENDPOINT_URI', '/api')
         $scope.recordId = $stateParams.recordId;
         $scope.file = UPLOAD_FILE+$stateParams.file;
     })
-    ;
+    .controller('CancerCtrl', function($scope, $state, $stateParams, $http, ENDPOINT_URI, UPLOAD_FILE){
+        $scope.recordId = $stateParams.recordId;
+        $http.get(ENDPOINT_URI+'/ct/cancer/'+$scope.recordId)
+            .then(function(result){
+                $scope.ctImages = result.data.cancer;
+                $scope.ctImages.forEach(function(r, i) {
+                    r.file = 'upload/'+ r.file;
+                });
+                $scope.status = result.data.status;
+                if ($scope.status == -1){
+                    $scope.recognitionStatus = "智能识别尚未执行完成！";
+                }
+            },function(error){
+                console.log(error);
+            });
+    });
