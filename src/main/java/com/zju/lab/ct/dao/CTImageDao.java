@@ -1,5 +1,6 @@
 package com.zju.lab.ct.dao;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
 import com.zju.lab.ct.model.CTImage;
 import com.zju.lab.ct.model.HttpCode;
@@ -30,7 +31,7 @@ public class CTImageDao {
     protected JDBCClient sqlite = null;
     private JsonObject sqliteConfig = null;
     private Vertx vertx;
-
+    @Inject
     public CTImageDao(Vertx vertx) throws UnsupportedEncodingException {
         this.vertx = vertx;
         this.sqliteConfig = new JsonObject()
@@ -45,7 +46,6 @@ public class CTImageDao {
      * @param ctImageHandler
      */
     public void getCTImageById(int id, Handler<ResponseMsg<JsonObject>> ctImageHandler){
-        /*sqlite = JDBCClient.createShared(vertx, sqliteConfig);*/
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
@@ -131,7 +131,6 @@ public class CTImageDao {
      * @param ctsHandler
      */
     public void getCTImages(int recordId, Handler<ResponseMsg<JsonObject>> ctsHandler){
-        /*sqlite = JDBCClient.createShared(vertx, sqliteConfig);*/
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
@@ -340,7 +339,6 @@ public class CTImageDao {
      * @param ctsHandler
      */
     public void getCancerImages(int recordId, Handler<ResponseMsg<JsonObject>> ctsHandler){
-        /*sqlite = JDBCClient.createShared(vertx, sqliteConfig);*/
         sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");

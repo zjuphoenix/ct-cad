@@ -1,5 +1,6 @@
 package com.zju.lab.ct.dao;
 
+import com.google.inject.Inject;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -31,6 +32,7 @@ public class ReportDao {
     private static Logger LOGGER = LoggerFactory.getLogger(ReportDao.class);
     protected JDBCClient sqlite = null;
 
+    @Inject
     public ReportDao(Vertx vertx) throws UnsupportedEncodingException {
         JsonObject sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))

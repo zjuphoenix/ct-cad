@@ -1,5 +1,6 @@
 package com.zju.lab.ct.handlers;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
@@ -19,19 +20,15 @@ import io.vertx.ext.web.RoutingContext;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
 @RouteHandler("/api/users")
-public class UserHandler {
+public class  UserHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserHandler.class);
 
+    @Inject
     private UserDao userDao;
-
-    public UserHandler(UserDao userDao) {
-        this.userDao = userDao;
-    }
 
     /**
      * /api/users

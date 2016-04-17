@@ -1,5 +1,6 @@
 package com.zju.lab.ct.handlers;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
@@ -20,13 +21,11 @@ import org.slf4j.LoggerFactory;
 @RouteHandler("/api/records")
 public class RecordsHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordsHandler.class);
+    @Inject
     private RecordsDao recordsDao;
+    @Inject
     private ReportDao reportDao;
 
-    public RecordsHandler(RecordsDao recordsDao, ReportDao reportDao) {
-        this.recordsDao = recordsDao;
-        this.reportDao = reportDao;
-    }
 
     /**
      * 病历分页管理，区分管理员、医生和病人，病人按用户名查询自己的病历，管理员和医生查询所有病历

@@ -18,6 +18,7 @@ import java.io.File;
  */
 @RouteHandler("/api/ct")
 public class LesionDetectionHandler {
+
     @RouteMapping(value = "/segmentation", method = RouteMethod.POST)
     public Handler<RoutingContext> predictLesionType() {
         return ctx -> {

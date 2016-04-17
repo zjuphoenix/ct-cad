@@ -21,6 +21,7 @@ public class SecurityHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityHandler.class);
 
+
     /**
      * /api/permission
      * POST

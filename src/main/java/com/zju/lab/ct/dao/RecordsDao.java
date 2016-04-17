@@ -1,5 +1,6 @@
 package com.zju.lab.ct.dao;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
 import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.model.ResponseMsg;
@@ -10,14 +11,11 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,10 +29,8 @@ public class RecordsDao {
 
     private JsonObject sqliteConfig = null;
 
-    private Vertx vertx;
-
+    @Inject
     public RecordsDao(Vertx vertx) throws UnsupportedEncodingException {
-        this.vertx = vertx;
         this.sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))
                 .put("driver_class", AppUtil.configStr("db.driver_class"));

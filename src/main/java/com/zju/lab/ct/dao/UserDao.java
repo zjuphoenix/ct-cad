@@ -1,5 +1,6 @@
 package com.zju.lab.ct.dao;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
 import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.model.ResponseMsg;
@@ -27,6 +28,7 @@ public class UserDao {
 
     protected JDBCClient sqlite = null;
 
+    @Inject
     public UserDao(Vertx vertx) throws UnsupportedEncodingException {
         JsonObject sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))

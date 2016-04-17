@@ -1,6 +1,7 @@
 package com.zju.lab.ct.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.Constants;
@@ -31,6 +32,7 @@ public class FeatureDao {
     private Map<String,Integer> lesionType;
     private Map<String,Integer> lungType;
 
+    @Inject
     public FeatureDao(Vertx vertx) throws UnsupportedEncodingException {
         JsonObject sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))

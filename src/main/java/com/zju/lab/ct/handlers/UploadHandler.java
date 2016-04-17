@@ -1,5 +1,6 @@
 package com.zju.lab.ct.handlers;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
@@ -26,11 +27,9 @@ import java.util.Set;
 public class UploadHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadHandler.class);
 
+    @Inject
     private CTImageDao ctImageDao;
 
-    public UploadHandler(CTImageDao ctImageDao) {
-        this.ctImageDao = ctImageDao;
-    }
 
     /**
      * /upload

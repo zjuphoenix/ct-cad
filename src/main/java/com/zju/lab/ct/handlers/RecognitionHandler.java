@@ -1,5 +1,6 @@
 package com.zju.lab.ct.handlers;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.algorithm.feature.ImageFeature;
 import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
@@ -23,13 +24,9 @@ import java.io.IOException;
 @RouteHandler("/api/ct")
 public class RecognitionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecognitionHandler.class);
-    private CloseableHttpClient httpClient = HttpClients.createDefault();
+
+    @Inject
     private FeatureDao featureDao;
-
-    public RecognitionHandler(FeatureDao featureDao) {
-        this.featureDao = featureDao;
-    }
-
 
     /**
      * /api/ct/predict

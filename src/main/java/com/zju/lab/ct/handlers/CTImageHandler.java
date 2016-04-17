@@ -1,5 +1,6 @@
 package com.zju.lab.ct.handlers;
 
+import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
@@ -19,11 +20,9 @@ import org.slf4j.LoggerFactory;
 public class CTImageHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(CTImageHandler.class);
 
+    @Inject
     private CTImageDao ctImageDao;
 
-    public CTImageHandler(CTImageDao ctImageDao) {
-        this.ctImageDao = ctImageDao;
-    }
 
     /**
      * url: /api/ct/data/:recordId

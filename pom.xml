@@ -28,6 +28,7 @@
         <javassist.version>3.20.0-GA</javassist.version>
         <json.version>20160212</json.version>
         <opencv.version>1.1</opencv.version>
+        <guice.version>4.0</guice.version>
     </properties>
 
     <dependencies>
@@ -177,6 +178,13 @@
             <artifactId>javacv</artifactId>
             <version>${opencv.version}</version>
         </dependency>-->
+
+        <!--google ioc container-->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

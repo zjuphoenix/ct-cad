@@ -1,15 +1,16 @@
 package com.zju.lab.ct.verticle;
 
-import com.zju.lab.ct.annotations.HandlerDao;
+import com.google.inject.Injector;
 import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;
 import com.zju.lab.ct.security.APIInterceptorHandler;
 import com.zju.lab.ct.security.FormLoginHandlerImpl;
 import com.zju.lab.ct.utils.AppUtil;
+import com.zju.lab.ct.utils.Constants;
+import com.zju.lab.ct.ioc.IOCAppContext;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.jdbc.JDBCAuth;
@@ -20,10 +21,7 @@ import io.vertx.ext.web.sstore.LocalSessionStore;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,36 +32,20 @@ public class WebServer extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebServer.class);
 
     // Scan handlers from package 'com.zju.lab.ct.handlers.*'
-    private static final Reflections handlerReflections = new Reflections("com.zju.lab.ct.handlers");
-    // Scan daos from package 'com.zju.lab.ct.dao.*'
-    private static final Reflections daoReflections = new Reflections("com.zju.lab.ct.dao");
+    private static final Reflections handlerReflections = new Reflections(Constants.HANDLERPATH);
 
     private Integer port = AppUtil.configInt("web.server.port");
 
     protected Router router;
 
-    private Map<Class<?>,Object> daoMap;
+    private IOCAppContext iocAppContext;
+
 
     @Override
     public void start() throws Exception {
 
+        iocAppContext = IOCAppContext.getInstance();
         LOGGER.info("Start server at port {} .....", port);
-
-        daoMap = new HashMap<>();
-        daoMap.put(vertx.getClass(), vertx);
-
-        LOGGER.info("Start scanning daos....");
-        Set<Class<?>> daos = daoReflections.getTypesAnnotatedWith(HandlerDao.class);
-        for (Class<?> dao : daos) {
-            LOGGER.info("Scan dao {}", dao.getSimpleName());
-            Constructor constructor = dao.getConstructor(Vertx.class);
-            if (constructor == null){
-                LOGGER.error("{} is not satisfiable, dao must have a constructor with param type Vertx.class!",dao.getSimpleName());
-                continue;
-            }
-            daoMap.put(dao, constructor.newInstance(vertx));
-        }
-        LOGGER.info("Scanning dao finished!");
 
         router = Router.router(vertx);
 
@@ -122,24 +104,9 @@ public class WebServer extends AbstractVerticle {
             root = routeHandler.value();
         }
         LOGGER.info("Handler:{}", handler.getSimpleName());
-        Constructor[] constructors = handler.getConstructors();
-        Class<?>[] clazzs = constructors[0].getParameterTypes();
-        int length = clazzs.length;
-        Object[] objects = new Object[length];
-        for (int i = 0; i < length; i++) {
-            objects[i] = daoMap.get(clazzs[i]);
-        }
-        Object instance = constructors[0].newInstance(objects);
-        /*for (Constructor constructor:constructors){
-            Class<?>[] clazzs = constructor.getParameterTypes();
-            int length = clazzs.length;
-            Object[] objects = new Object[length];
-            for (int i = 0; i < length; i++) {
-                objects[i] = daoMap.get(clazzs[i]);
-            }
-            instance = constructor.newInstance(objects);
-            break;
-        }*/
+
+        Object instance = iocAppContext.getBean(handler);
+
         Method[] methods = handler.getMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(RouteMapping.class)) {

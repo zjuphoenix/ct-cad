@@ -1,5 +1,6 @@
 package com.zju.lab.ct.verticle;
 
+import com.google.inject.Inject;
 import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
 import com.zju.lab.ct.algorithm.feature.ImageFeature;
@@ -13,7 +14,6 @@ import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.ConfigUtil;
 import com.zju.lab.ct.utils.DataStructureUtil;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.dns.impl.netty.decoder.DomainDecoder;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonArray;
@@ -22,12 +22,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import segmentation.Segmentation;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +37,12 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(LesionRecognitionVerticle.class);
 
     private List<Point> seeds = null;
+
+    @Inject
+    private CTImageDao ctImageDao;
+    @Inject
+    private FeatureDao featureDao;
+
     @Override
     public void start() throws Exception {
         /*lesion recognition*/
@@ -54,7 +58,6 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
         seeds.add(new Point(150,250));
         seeds.add(new Point(100,250));
 
-        CTImageDao ctImageDao = new CTImageDao(vertx);
         EventBus eventBus = vertx.eventBus();
         /*病变识别消息订阅*/
         MessageConsumer<String> consumer = eventBus.consumer(EventBusMessage.LESION_RECOGNITION);
@@ -106,100 +109,86 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
         /*肝脏病变识别算法训练消息订阅*/
         eventBus.consumer(EventBusMessage.LIVER_ALGORITHM_MODEL_GENERATE).handler(message -> {
             LOGGER.info("liver algorithm generate message");
-            FeatureDao featureDao = null;
-            try {
-                featureDao = new FeatureDao(vertx);
-                RandomForest randomforest = new RandomForest(50, 4);
-                featureDao.fetchLiverFeatureSamples(samples -> {
-                    if (samples == null){
-                        LOGGER.error("cannot get liver samples!");
-                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get liver samples!");
-                    }
-                    else {
+            RandomForest randomforest = new RandomForest(50, 4);
+            featureDao.fetchLiverFeatureSamples(samples -> {
+                if (samples == null){
+                    LOGGER.error("cannot get liver samples!");
+                    message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get liver samples!");
+                }
+                else {
+                    try {
+                        randomforest.createForest(samples);
+                        LOGGER.info("Liver RandomForest Algorithm finished!");
+                        //实例化ObjectOutputStream对象
+                        ObjectOutputStream oos = null;
                         try {
-                            randomforest.createForest(samples);
-                            LOGGER.info("Liver RandomForest Algorithm finished!");
-                            //实例化ObjectOutputStream对象
-                            ObjectOutputStream oos = null;
-                            try {
-                                File file = new File("conf/RandomForest");
-                                if (file.exists()){
-                                    file.delete();
-                                    file.createNewFile();
-                                }
-                                oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest"));
-                                //将对象写入文件
-                                oos.writeObject(randomforest);
-                                oos.flush();
-                                oos.close();
-                                message.reply("liver lesion recognition model create success!");
-                            } catch (IOException e) {
-                                LOGGER.error(e.getMessage(), e);
-                                message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                            File file = new File("conf/RandomForest");
+                            if (file.exists()){
+                                file.delete();
+                                file.createNewFile();
                             }
-                        } catch (InterruptedException e) {
-                            LOGGER.error(e.getMessage(), e);
-                            message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
-                        } catch (ExecutionException e) {
+                            oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest"));
+                            //将对象写入文件
+                            oos.writeObject(randomforest);
+                            oos.flush();
+                            oos.close();
+                            message.reply("liver lesion recognition model create success!");
+                        } catch (IOException e) {
                             LOGGER.error(e.getMessage(), e);
                             message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
                         }
-
+                    } catch (InterruptedException e) {
+                        LOGGER.error(e.getMessage(), e);
+                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                    } catch (ExecutionException e) {
+                        LOGGER.error(e.getMessage(), e);
+                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
                     }
-                });
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error(e.getMessage(), e);
-                message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
-            }
+
+                }
+            });
         });
         /*肺部病变识别算法训练消息订阅*/
         eventBus.consumer(EventBusMessage.LUNG_ALGORITHM_MODEL_GENERATE).handler(message -> {
             LOGGER.info("lung algorithm generate message");
-            FeatureDao featureDao = null;
-            try {
-                featureDao = new FeatureDao(vertx);
-                RandomForest randomforest = new RandomForest(50, 4);
-                featureDao.fetchLungFeatureSamples(samples -> {
-                    if (samples == null){
-                        LOGGER.error("cannot get lung samples!");
-                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get lung samples!");
-                    }
-                    else {
+            RandomForest randomforest = new RandomForest(50, 4);
+            featureDao.fetchLungFeatureSamples(samples -> {
+                if (samples == null){
+                    LOGGER.error("cannot get lung samples!");
+                    message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get lung samples!");
+                }
+                else {
+                    try {
+                        randomforest.createForest(samples);
+                        LOGGER.info("Lung RandomForest Algorithm finished!");
+                        //实例化ObjectOutputStream对象
+                        ObjectOutputStream oos = null;
                         try {
-                            randomforest.createForest(samples);
-                            LOGGER.info("Lung RandomForest Algorithm finished!");
-                            //实例化ObjectOutputStream对象
-                            ObjectOutputStream oos = null;
-                            try {
-                                File file = new File("conf/RandomForest_Lung");
-                                if (file.exists()){
-                                    file.delete();
-                                    file.createNewFile();
-                                }
-                                oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest_Lung"));
-                                //将对象写入文件
-                                oos.writeObject(randomforest);
-                                oos.flush();
-                                oos.close();
-                                message.reply("lung lesion recognition model create success!");
-                            } catch (IOException e) {
-                                LOGGER.error(e.getMessage(), e);
-                                message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                            File file = new File("conf/RandomForest_Lung");
+                            if (file.exists()){
+                                file.delete();
+                                file.createNewFile();
                             }
-                        } catch (InterruptedException e) {
-                            LOGGER.error(e.getMessage(), e);
-                            message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
-                        } catch (ExecutionException e) {
+                            oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest_Lung"));
+                            //将对象写入文件
+                            oos.writeObject(randomforest);
+                            oos.flush();
+                            oos.close();
+                            message.reply("lung lesion recognition model create success!");
+                        } catch (IOException e) {
                             LOGGER.error(e.getMessage(), e);
                             message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
                         }
-
+                    } catch (InterruptedException e) {
+                        LOGGER.error(e.getMessage(), e);
+                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                    } catch (ExecutionException e) {
+                        LOGGER.error(e.getMessage(), e);
+                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
                     }
-                });
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error(e.getMessage(), e);
-                message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
-            }
+
+                }
+            });
         });
         /*肝脏区域分割消息订阅*/
         eventBus.consumer(EventBusMessage.LIVER_SEGMENTATION).handler(message -> {
