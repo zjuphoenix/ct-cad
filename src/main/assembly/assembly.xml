@@ -30,11 +30,9 @@
         </fileSet>
         <fileSet>
             <!--
-            打包工程根目录下src/main/scripts目录下的run.sh和run.bat文件到打成的包的根目录下的bin文件夹
+            拷贝appassembler-maven-plugin插件生成的执行脚本,打包target/bin目录下的run.sh和run.bat文件到打成的包的根目录下的bin文件夹
             -->
-            <!--<directory>src/main/scripts</directory>-->
-            <!--拷贝appassembler-maven-plugin插件生成的执行脚本-->
-            <directory>target/project/bin</directory>
+            <directory>target/bin</directory>
             <outputDirectory>/bin</outputDirectory>
             <includes>
                 <include>run.sh</include>

@@ -16,6 +16,7 @@ public class IOCAppContext {
 
     }
 
+    /*必须执行过init方法后IOC容器才算初始化完成，上下文才能使用*/
     public void init(Vertx vertx){
         injector = Guice.createInjector(Stage.PRODUCTION, new BeanIOCModule(vertx));
     }

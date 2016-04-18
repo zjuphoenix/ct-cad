@@ -1,6 +1,6 @@
 package com.zju.lab.ct;
 
-import com.google.inject.*;
+import com.zju.lab.ct.shutdown.ShutdownHookHub;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.ioc.IOCAppContext;
 import com.zju.lab.ct.verticle.LesionRecognitionVerticle;
@@ -20,14 +20,15 @@ public class App {
 
     public static void main(String[] args) {
         VertxOptions options = new VertxOptions();
-        // 设置工作线程
+        /*设置工作线程*/
         options.setWorkerPoolSize(AppUtil.configInt("work.pool.size"));
         options.setMetricsOptions(new DropwizardMetricsOptions().setEnabled(true));
         options.setMaxEventLoopExecuteTime(Long.MAX_VALUE);
-
+        /*初始化IOC容器，将vertx实例注入*/
         IOCAppContext iocAppContext = IOCAppContext.getInstance();
         iocAppContext.init(Vertx.vertx(options));
         Vertx vertx = (Vertx)iocAppContext.getBean(Vertx.class);
+        /*设置verticle工作方式参数*/
         DeploymentOptions deploymentOptions = new DeploymentOptions();
         //deploymentOptions.setHa(true);
         deploymentOptions.setInstances(AppUtil.configInt("instance.num"));
@@ -38,10 +39,18 @@ public class App {
         vertx.deployVerticle((WebServer)iocAppContext.getBean(WebServer.class), deploymentOptions);
         vertx.deployVerticle((LesionRecognitionVerticle)iocAppContext.getBean(LesionRecognitionVerticle.class));
 
-        /** 添加钩子函数,保证vertx的正常关闭 */
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            vertx.close();
-            LOGGER.info("server stop success!");
-        }));
+        /*添加钩子函数,保证vertx的正常关闭*/
+        ShutdownHookHub.registerShutdownHook(new ShutdownHookHub.ShutdownHook() {
+            @Override
+            public String topic() {
+                return "vertx-instance";
+            }
+
+            @Override
+            public void call() {
+                vertx.close();
+                LOGGER.info("vertx stop success!");
+            }
+        });
     }
 }
