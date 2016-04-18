@@ -14,11 +14,11 @@ import java.io.IOException;
  * Created by wuhaitao on 2016/4/14.
  */
 public class OpneCVTest {
-    //@Test
+    @Test
     public void test() throws MWException, IOException {
         Segmentation segmentation = new Segmentation();
         String fileName = "E:/graduation/data/Chen_Xiao_Bo/IMG-0001-00009.jpg";
-        Object[] objects = segmentation.getLiverRegion(1,fileName,150,250);
+        Object[] objects = segmentation.getLiverMask(1,fileName,150,250);
         MWNumericArray res = (MWNumericArray)objects[0];
         int[][] matrix = (int[][])res.toIntArray();
         int height = 512;

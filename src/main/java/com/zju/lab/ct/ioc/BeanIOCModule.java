@@ -27,6 +27,7 @@ public class BeanIOCModule extends AbstractModule{
     @Override
     protected void configure() {
         /*vertx*/
+        /*这种绑定方式貌似只能通过构造器注入，不能通过属性直接注入*/
         bind(Vertx.class).toInstance(vertx);
         /*dao*/
         Reflections daoReflections = new Reflections(Constants.DAOPATH);

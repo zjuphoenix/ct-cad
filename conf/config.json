@@ -8,7 +8,7 @@
   "RandomForest_Lung" : "conf/RandomForest_Lung",
   "GlobalFeatureRecognition" : "conf/GlobalFeatureRecognition",
   "segmentation" : "segmentation",
-  "work.pool.size" :30,
+  "work.pool.size" :10,
   "instance.num" :1,
   "work.model" : false,
   "multi-threaded.model" : true
