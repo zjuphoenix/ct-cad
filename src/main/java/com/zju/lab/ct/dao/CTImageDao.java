@@ -1,7 +1,11 @@
 package com.zju.lab.ct.dao;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
+import com.zju.lab.ct.cache.CTPageKey;
 import com.zju.lab.ct.mapper.CTMapper;
 import com.zju.lab.ct.mapper.RecordMapper;
 import com.zju.lab.ct.model.CTImage;
@@ -20,21 +24,44 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by wuhaitao on 2016/3/10.
+ *
+ * @author wuhaitao
+ * @date 2016/3/10 22:15
  */
 @HandlerDao
 public class CTImageDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(CTImageDao.class);
     private Vertx vertx;
     private SqlSessionFactory sqlSessionFactory;
+    private LoadingCache<CTPageKey, JsonObject> cache;
     @Inject
     public CTImageDao(Vertx vertx, SqlSessionFactory sqlSessionFactory) throws UnsupportedEncodingException {
         this.sqlSessionFactory = sqlSessionFactory;
         this.vertx = vertx;
+        this.cache = CacheBuilder.newBuilder()
+                .maximumSize(100)
+                .build(new CacheLoader<CTPageKey, JsonObject>() {
+                    @Override
+                    public JsonObject load(CTPageKey ctPageKey) throws Exception {
+                        LOGGER.info("query db ct table.");
+                        SqlSession session= sqlSessionFactory.openSession();
+                        CTMapper ctMapper = session.getMapper(CTMapper.class);
+                        int recordId = ctPageKey.getRecordId();
+                        int pageIndex = ctPageKey.getPageIndex();
+                        int pageSize = ctPageKey.getPageSize();
+                        List<CTImage> ctImages = ctMapper.queryCTs(recordId, (pageIndex-1)*pageSize, pageSize);
+                        int sum = ctMapper.queryCTCountByRecordId(recordId);
+                        JsonObject res = new JsonObject();
+                        res.put("ct", ctImages);
+                        res.put("count", sum);
+                        return res;
+                    }
+                });
     }
 
     private JsonObject ct2Json(CTImage ctImage){
@@ -97,6 +124,7 @@ public class CTImageDao {
                 responseMsgHandler.handle(new ResponseMsg<>(HttpCode.NOT_FOUND, "ct not found"));
             }
             session.commit();
+            cache.invalidateAll();
         } catch (Exception e) {
             LOGGER.error("delete ctimage by id {} failed!", id, e);
             responseMsgHandler.handle(new ResponseMsg<>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
@@ -132,6 +160,7 @@ public class CTImageDao {
         try {
             ctMapper.addCT(ctImage);
             session.commit();
+            cache.invalidateAll();
             responseMsgHandler.handle(new ResponseMsg<>("upload ct success"));
         } catch (Exception e) {
             LOGGER.info("insert ct {} failed!", ctImage.getFile());
@@ -163,6 +192,7 @@ public class CTImageDao {
                 vertx.eventBus().send(EventBusMessage.GLOBAL_FEATURE_RECOGNITION, data.encode());
             }
             session.commit();
+            cache.invalidateAll();
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             responseMsgHandler.handle(new ResponseMsg<>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
@@ -181,6 +211,7 @@ public class CTImageDao {
         try {
             ctMapper.updateCTDiagnosis(id, diagnosis);
             session.commit();
+            cache.invalidateAll();
             LOGGER.info("update ct success!");
             responseMsgHandler.handle(new ResponseMsg<>("update ct diagnosis success!"));
         } catch (Exception e) {
@@ -197,16 +228,11 @@ public class CTImageDao {
      * @param ctsHandler
      */
     public void getCTImagesByPage(int recordId, int pageIndex, int pageSize, Handler<ResponseMsg<JsonObject>> ctsHandler){
-        SqlSession session= sqlSessionFactory.openSession();
-        CTMapper ctMapper = session.getMapper(CTMapper.class);
         try {
-            List<CTImage> ctImages = ctMapper.queryCTs(recordId, (pageIndex-1)*pageSize, pageSize);
-            int sum = ctMapper.queryCTCountByRecordId(recordId);
-            JsonObject res = new JsonObject();
-            res.put("ct", ctImages);
-            res.put("count", sum);
+            JsonObject res = cache.get(new CTPageKey(pageIndex, pageSize, recordId));
             ctsHandler.handle(new ResponseMsg<>(res));
-        } catch (Exception e) {
+        } catch (ExecutionException e) {
+            LOGGER.error(e.getMessage(), e);
             ctsHandler.handle(new ResponseMsg<>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
         }
     }
@@ -223,6 +249,7 @@ public class CTImageDao {
         try {
             ctMapper.updateCTRecognition(id, recognition);
             session.commit();
+            cache.invalidateAll();
             LOGGER.info("update ct recognition success!");
             responseMsgHandler.handle(new ResponseMsg<>("update ct recognition success!"));
         } catch (Exception e) {

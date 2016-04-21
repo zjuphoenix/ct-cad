@@ -38,19 +38,10 @@ public class RecordsHandler {
             int pageIndex = data.getInteger("pageIndex");
             int pageSize = data.getInteger("pageSize");
             String username = data.getString("username");
-            /*LOGGER.info("get records...");*/
-            if (StringUtils.isEmpty(username)) {
-                recordsDao.getRecordsByPage(pageIndex, pageSize, result -> {
-                    HttpServerResponse response = ctx.response();
-                    ResponseUtil.responseContent(response, result);
-                });
-            }
-            else{
-                recordsDao.getRecordsByUserPage(username, pageIndex, pageSize, result -> {
-                    HttpServerResponse response = ctx.response();
-                    ResponseUtil.responseContent(response, result);
-                });
-            }
+            recordsDao.getRecordsByPage(username, pageIndex, pageSize, result -> {
+                HttpServerResponse response = ctx.response();
+                ResponseUtil.responseContent(response, result);
+            });
         };
     }
 

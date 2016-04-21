@@ -3,15 +3,15 @@ package com.zju.lab.ct.cache;
 /**
  * Created by wuhaitao on 2016/4/18.
  */
-public class PageKey {
+public class RecordPageKey {
     private int pageIndex;
     private int pageSize;
     private String username;
 
-    public PageKey() {
+    public RecordPageKey() {
     }
 
-    public PageKey(int pageIndex, int pageSize, String username) {
+    public RecordPageKey(int pageIndex, int pageSize, String username) {
         this.pageIndex = pageIndex;
         this.pageSize = pageSize;
         this.username = username;
@@ -44,13 +44,13 @@ public class PageKey {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PageKey)) return false;
+        if (!(o instanceof RecordPageKey)) return false;
 
-        PageKey pageKey = (PageKey) o;
+        RecordPageKey recordPageKey = (RecordPageKey) o;
 
-        if (getPageIndex() != pageKey.getPageIndex()) return false;
-        if (getPageSize() != pageKey.getPageSize()) return false;
-        return getUsername() != null ? getUsername().equals(pageKey.getUsername()) : pageKey.getUsername() == null;
+        if (getPageIndex() != recordPageKey.getPageIndex()) return false;
+        if (getPageSize() != recordPageKey.getPageSize()) return false;
+        return getUsername() != null ? getUsername().equals(recordPageKey.getUsername()) : recordPageKey.getUsername() == null;
 
     }
 
