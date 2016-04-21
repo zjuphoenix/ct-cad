@@ -5,6 +5,10 @@
         select * from ct where recordId = #{recordId} limit #{rowCount} offset #{offset}
     </select>
 
+    <select id="queryAllCTsByRecordId" parameterType="int" resultType="CTImage" useCache="false">
+        select * from ct where recordId = #{recordId}
+    </select>
+
     <select id="queryCTById" resultType="CTImage" useCache="false">
         select * from ct where id = #{id} limit 1
     </select>
@@ -18,7 +22,7 @@
     </select>
 
     <select id="queryCTDiagnosisNotNull" parameterType="int" resultType="CTImage" useCache="false">
-        select * from ct where recordId = #{recordId} and diagnosis is not null and diagnosis is not ''
+        select * from ct where recordId = #{recordId} and diagnosis is not null and diagnosis != ''
     </select>
 
     <insert id="addCT" parameterType="CTImage" useGeneratedKeys="true" keyProperty="id">

@@ -20,8 +20,12 @@
         <environment id="development">
             <transactionManager type="JDBC" />
             <dataSource type="POOLED">
-                <property name="driver" value="org.sqlite.JDBC" />
-                <property name="url" value="jdbc:sqlite:db/cad" />
+                <!--<property name="driver" value="org.sqlite.JDBC" />
+                <property name="url" value="jdbc:sqlite:db/cad" />-->
+                <property name="driver" value="com.mysql.jdbc.Driver" />
+                <property name="url" value="jdbc:mysql://10.13.81.181:3306/cad?characterEncoding=UTF-8" />
+                <property name="username" value="root" />
+                <property name="password" value="gaotie508" />
             </dataSource>
         </environment>
     </environments>

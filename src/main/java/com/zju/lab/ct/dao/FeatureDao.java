@@ -5,15 +5,9 @@ import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
 import com.zju.lab.ct.mapper.FeatureMapper;
 import com.zju.lab.ct.model.Feature;
-import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.Constants;
-import com.zju.lab.ct.utils.JDBCConnUtil;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.SQLConnection;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
@@ -24,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by wuhaitao on 2016/3/12.
@@ -34,18 +26,13 @@ import java.util.stream.Stream;
 public class FeatureDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(CTImageDao.class);
 
-    protected JDBCClient sqlite = null;
     private Map<String,Integer> lesionType;
     private Map<String,Integer> lungType;
     private SqlSessionFactory sqlSessionFactory;
 
     @Inject
-    public FeatureDao(Vertx vertx, SqlSessionFactory sqlSessionFactory) throws UnsupportedEncodingException {
+    public FeatureDao(SqlSessionFactory sqlSessionFactory) throws UnsupportedEncodingException {
         this.sqlSessionFactory = sqlSessionFactory;
-        JsonObject sqliteConfig = new JsonObject()
-                .put("url", AppUtil.configStr("db.url"))
-                .put("driver_class", AppUtil.configStr("db.driver_class"));
-        sqlite = JDBCClient.createShared(vertx, sqliteConfig, "feature");
         try {
             URL url = getClass().getClassLoader().getResource(Constants.LESION);
             LOGGER.debug("Initialize lesion type from path : {}", url);
@@ -76,39 +63,17 @@ public class FeatureDao {
      * @param handler
      */
     public void addLiverFeature(double[] feature, String label, Handler<String> handler){
-        SqlSession session = sqlSessionFactory.openSession();
+        SqlSession session = sqlSessionFactory.openSession(false);
         FeatureMapper featureMapper = session.getMapper(FeatureMapper.class);
         Feature feature1 = new Feature(feature, lesionType.get(label));
         try {
             featureMapper.addLiverFeature(feature1);
+            session.commit();
             handler.handle("success");
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             handler.handle(e.getMessage());
         }
-        /*sqlite.getConnection(connection -> {
-            if (connection.failed()){
-                LOGGER.error("connection sqlite failed!");
-                handler.handle("connection sqlite failed!");
-            }
-            else{
-                SQLConnection conn = connection.result();
-                JsonArray params = new JsonArray();
-                for (int i=0;i<26;i++){
-                    params.add(feature[i]);
-                }
-                params.add(lesionType.get(label));
-                conn.updateWithParams("insert into feature(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,label) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params,result -> {
-                    if (result.succeeded()){
-                        handler.handle("success");
-                    }
-                    else{
-                        handler.handle(result.cause().getMessage());
-                    }
-                    JDBCConnUtil.close(conn);
-                });
-            }
-        });*/
     }
 
     /**
@@ -118,39 +83,17 @@ public class FeatureDao {
      * @param handler
      */
     public void addLungFeature(double[] feature, String label, Handler<String> handler){
-        SqlSession session = sqlSessionFactory.openSession();
+        SqlSession session = sqlSessionFactory.openSession(false);
         FeatureMapper featureMapper = session.getMapper(FeatureMapper.class);
         Feature feature1 = new Feature(feature, lungType.get(label));
         try {
             featureMapper.addLungFeature(feature1);
+            session.commit();
             handler.handle("success");
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             handler.handle(e.getMessage());
         }
-        /*sqlite.getConnection(connection -> {
-            if (connection.failed()){
-                LOGGER.error("connection sqlite failed!");
-                handler.handle("connection sqlite failed!");
-            }
-            else{
-                SQLConnection conn = connection.result();
-                JsonArray params = new JsonArray();
-                for (int i=0;i<26;i++){
-                    params.add(feature[i]);
-                }
-                params.add(lungType.get(label));
-                conn.updateWithParams("insert into lungfeature(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,label) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params,result -> {
-                    if (result.succeeded()){
-                        handler.handle("success");
-                    }
-                    else{
-                        handler.handle(result.cause().getMessage());
-                    }
-                    JDBCConnUtil.close(conn);
-                });
-            }
-        });*/
     }
 
     /**
@@ -176,61 +119,6 @@ public class FeatureDao {
             LOGGER.error(e.getMessage(), e);
             samplesHandler.handle(null);
         }
-        /*sqlite.getConnection(connection -> {
-            if (connection.failed()){
-                LOGGER.error("connection sqlite failed!");
-                samplesHandler.handle(null);
-            }
-            else{
-                SQLConnection conn = connection.result();
-                conn.query("select * from feature", result -> {
-                    if (result.succeeded()){
-                        List<JsonObject> objs = result.result().getRows();
-                        List<Double[]> samples = new ArrayList<Double[]>(objs.size());
-                        if (objs != null && !objs.isEmpty()) {
-                            objs.forEach(obj -> {
-                                Double[] d = new Double[27];
-                                d[0] = obj.getDouble("f1");
-                                d[1] = obj.getDouble("f2");
-                                d[2] = obj.getDouble("f1");
-                                d[3] = obj.getDouble("f1");
-                                d[4] = obj.getDouble("f1");
-                                d[5] = obj.getDouble("f1");
-                                d[6] = obj.getDouble("f1");
-                                d[7] = obj.getDouble("f1");
-                                d[8] = obj.getDouble("f1");
-                                d[9] = obj.getDouble("f1");
-                                d[10] = obj.getDouble("f1");
-                                d[11] = obj.getDouble("f1");
-                                d[12] = obj.getDouble("f1");
-                                d[13] = obj.getDouble("f1");
-                                d[14] = obj.getDouble("f1");
-                                d[15] = obj.getDouble("f1");
-                                d[16] = obj.getDouble("f1");
-                                d[17] = obj.getDouble("f1");
-                                d[18] = obj.getDouble("f1");
-                                d[19] = obj.getDouble("f1");
-                                d[20] = obj.getDouble("f1");
-                                d[21] = obj.getDouble("f1");
-                                d[22] = obj.getDouble("f1");
-                                d[23] = obj.getDouble("f1");
-                                d[24] = obj.getDouble("f1");
-                                d[25] = obj.getDouble("f1");
-                                d[26] = (double)obj.getInteger("label");
-                                samples.add(d);
-                            });
-                            samplesHandler.handle(samples);
-                        }
-                        else{
-                            samplesHandler.handle(null);
-                        }
-                    }
-                    else{
-                        samplesHandler.handle(null);
-                    }
-                });
-            }
-        });*/
     }
 
     /**
@@ -256,60 +144,5 @@ public class FeatureDao {
             LOGGER.error(e.getMessage(), e);
             samplesHandler.handle(null);
         }
-        /*sqlite.getConnection(connection -> {
-            if (connection.failed()){
-                LOGGER.error("connection sqlite failed!");
-                samplesHandler.handle(null);
-            }
-            else{
-                SQLConnection conn = connection.result();
-                conn.query("select * from lungfeature", result -> {
-                    if (result.succeeded()){
-                        List<JsonObject> objs = result.result().getRows();
-                        List<Double[]> samples = new ArrayList<Double[]>(objs.size());
-                        if (objs != null && !objs.isEmpty()) {
-                            objs.forEach(obj -> {
-                                Double[] d = new Double[27];
-                                d[0] = obj.getDouble("f1");
-                                d[1] = obj.getDouble("f2");
-                                d[2] = obj.getDouble("f1");
-                                d[3] = obj.getDouble("f1");
-                                d[4] = obj.getDouble("f1");
-                                d[5] = obj.getDouble("f1");
-                                d[6] = obj.getDouble("f1");
-                                d[7] = obj.getDouble("f1");
-                                d[8] = obj.getDouble("f1");
-                                d[9] = obj.getDouble("f1");
-                                d[10] = obj.getDouble("f1");
-                                d[11] = obj.getDouble("f1");
-                                d[12] = obj.getDouble("f1");
-                                d[13] = obj.getDouble("f1");
-                                d[14] = obj.getDouble("f1");
-                                d[15] = obj.getDouble("f1");
-                                d[16] = obj.getDouble("f1");
-                                d[17] = obj.getDouble("f1");
-                                d[18] = obj.getDouble("f1");
-                                d[19] = obj.getDouble("f1");
-                                d[20] = obj.getDouble("f1");
-                                d[21] = obj.getDouble("f1");
-                                d[22] = obj.getDouble("f1");
-                                d[23] = obj.getDouble("f1");
-                                d[24] = obj.getDouble("f1");
-                                d[25] = obj.getDouble("f1");
-                                d[26] = (double)obj.getInteger("label");
-                                samples.add(d);
-                            });
-                            samplesHandler.handle(samples);
-                        }
-                        else{
-                            samplesHandler.handle(null);
-                        }
-                    }
-                    else{
-                        samplesHandler.handle(null);
-                    }
-                });
-            }
-        });*/
     }
 }

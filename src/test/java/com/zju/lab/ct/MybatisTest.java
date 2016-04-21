@@ -1,6 +1,7 @@
 package com.zju.lab.ct;
 
 import com.zju.lab.ct.mapper.CTMapper;
+import com.zju.lab.ct.mapper.UserMapper;
 import com.zju.lab.ct.model.CTImage;
 import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.model.ResponseMsg;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
 
 /**
  * Created by wuhaitao on 2016/4/21.
@@ -33,11 +35,12 @@ public class MybatisTest {
     }
     //@Test
     public void test(){
-        SqlSession session= sqlSessionFactory.openSession(false);
+        SqlSession session= sqlSessionFactory.openSession();
         CTMapper ctMapper = session.getMapper(CTMapper.class);
-        int id = 165;
+        int id = 178;
         try {
-            CTImage ctImage = ctMapper.queryCTById(id);
+            ctMapper.deleteCTById(id);
+            /*CTImage ctImage = ctMapper.queryCTById(id);
             if (ctImage != null){
                 ctMapper.deleteCTById(id);
                 String image = AppUtil.getUploadDir()+ File.separator+ctImage.getFile();
@@ -51,14 +54,14 @@ public class MybatisTest {
             }
             else{
                 LOGGER.info("ct not found!");
-            }
-            session.commit();
+            }*/
+            //session.commit();
         } catch (Exception e) {
-            LOGGER.error("delete ctimage by id {} failed!", id);
+            LOGGER.error("delete ctimage by id {} failed!", id, e);
         }
     }
 
-    @Test
+    //@Test
     public void test2(){
         SqlSession session= sqlSessionFactory.openSession();
         CTMapper ctMapper = session.getMapper(CTMapper.class);
@@ -75,5 +78,13 @@ public class MybatisTest {
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    @Test
+    public void test3() throws Exception {
+        SqlSession session= sqlSessionFactory.openSession();
+        UserMapper userMapper = session.getMapper(UserMapper.class);
+        List<String> perms = userMapper.queryUserPermission("admin");
+        System.out.println(perms);
     }
 }

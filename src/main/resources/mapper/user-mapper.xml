@@ -9,6 +9,10 @@
         select USERNAME from USER where USERNAME = #{username} limit 1
     </select>
 
+    <select id="queryUserPermission" parameterType="String" resultType="String" useCache="false">
+        select a.perm from ROLES_PERMS a join USER_ROLES b on a.role = b.role where b.username = #{username}
+    </select>
+
     <insert id="addUser">
         insert into USER (USERNAME, PASSWORD, PASSWORD_SALT) values (#{username}, #{password}, #{password_salt})
     </insert>

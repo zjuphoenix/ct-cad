@@ -9,6 +9,7 @@ import java.util.List;
  */
 public interface CTMapper {
     List<CTImage> queryCTs(@Param("recordId") int recordId, @Param("offset") int offset, @Param("rowCount") int rowCount)  throws Exception;
+    List<CTImage> queryAllCTsByRecordId(@Param("recordId") int recordId)  throws Exception;
     CTImage queryCTById(@Param("id") int id) throws Exception;
     List<String> queryCTFileByRecordId(@Param("recordId") int recordId) throws Exception;
     List<CTImage> queryCancerCT(@Param("recordId") int recordId) throws Exception;
