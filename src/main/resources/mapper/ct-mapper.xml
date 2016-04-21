@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zju.lab.ct.mapper.CTMapper">
+    <select id="queryCTs" resultType="CTImage" useCache="false">
+        select * from ct where recordId = #{recordId} limit #{rowCount} offset #{offset}
+    </select>
+
+    <select id="queryCTById" resultType="CTImage" useCache="false">
+        select * from ct where id = #{id} limit 1
+    </select>
+
+    <select id="queryCTFileByRecordId" resultType="String" useCache="false">
+        select file from ct where recordId = #{recordId}
+    </select>
+
+    <select id="queryCancerCT" resultType="CTImage" useCache="false">
+        select * from ct where recordId = #{recordId} and recognition = 2
+    </select>
+
+    <select id="queryCTDiagnosisNotNull" parameterType="int" resultType="CTImage" useCache="false">
+        select * from ct where recordId = #{recordId} and diagnosis is not null and diagnosis is not ''
+    </select>
+
+    <insert id="addCT" parameterType="CTImage" useGeneratedKeys="true" keyProperty="id">
+        insert into ct(type,file,diagnosis,recordId) values(#{type},#{file},#{diagnosis},#{recordId})
+    </insert>
+
+    <update id="updateCTDiagnosis">
+        update ct set diagnosis = #{diagnosis} where id = #{id}
+    </update>
+
+    <update id="updateCTRecognition">
+        update ct set recognition = #{recognition} where id = #{id}
+    </update>
+
+    <delete id="deleteCTsByRecordId" parameterType="int">
+        delete from ct where recordId = #{recordId}
+    </delete>
+
+    <delete id="deleteCTById" parameterType="int">
+        delete from ct where id = #{id}
+    </delete>
+
+    <select id="queryCTCountByRecordId" parameterType="int" resultType="Integer" useCache="false">
+        select count(*) from ct where recordId = #{recordId}
+    </select>
+</mapper>

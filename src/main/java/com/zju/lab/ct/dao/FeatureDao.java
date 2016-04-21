@@ -3,6 +3,8 @@ package com.zju.lab.ct.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
+import com.zju.lab.ct.mapper.FeatureMapper;
+import com.zju.lab.ct.model.Feature;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.Constants;
 import com.zju.lab.ct.utils.JDBCConnUtil;
@@ -12,6 +14,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
@@ -20,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by wuhaitao on 2016/3/12.
@@ -31,9 +37,11 @@ public class FeatureDao {
     protected JDBCClient sqlite = null;
     private Map<String,Integer> lesionType;
     private Map<String,Integer> lungType;
+    private SqlSessionFactory sqlSessionFactory;
 
     @Inject
-    public FeatureDao(Vertx vertx) throws UnsupportedEncodingException {
+    public FeatureDao(Vertx vertx, SqlSessionFactory sqlSessionFactory) throws UnsupportedEncodingException {
+        this.sqlSessionFactory = sqlSessionFactory;
         JsonObject sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))
                 .put("driver_class", AppUtil.configStr("db.driver_class"));
@@ -68,7 +76,17 @@ public class FeatureDao {
      * @param handler
      */
     public void addLiverFeature(double[] feature, String label, Handler<String> handler){
-        sqlite.getConnection(connection -> {
+        SqlSession session = sqlSessionFactory.openSession();
+        FeatureMapper featureMapper = session.getMapper(FeatureMapper.class);
+        Feature feature1 = new Feature(feature, lesionType.get(label));
+        try {
+            featureMapper.addLiverFeature(feature1);
+            handler.handle("success");
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            handler.handle(e.getMessage());
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 handler.handle("connection sqlite failed!");
@@ -90,7 +108,7 @@ public class FeatureDao {
                     JDBCConnUtil.close(conn);
                 });
             }
-        });
+        });*/
     }
 
     /**
@@ -100,7 +118,17 @@ public class FeatureDao {
      * @param handler
      */
     public void addLungFeature(double[] feature, String label, Handler<String> handler){
-        sqlite.getConnection(connection -> {
+        SqlSession session = sqlSessionFactory.openSession();
+        FeatureMapper featureMapper = session.getMapper(FeatureMapper.class);
+        Feature feature1 = new Feature(feature, lungType.get(label));
+        try {
+            featureMapper.addLungFeature(feature1);
+            handler.handle("success");
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            handler.handle(e.getMessage());
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 handler.handle("connection sqlite failed!");
@@ -122,7 +150,7 @@ public class FeatureDao {
                     JDBCConnUtil.close(conn);
                 });
             }
-        });
+        });*/
     }
 
     /**
@@ -130,7 +158,25 @@ public class FeatureDao {
      * @param samplesHandler
      */
     public void fetchLiverFeatureSamples(Handler<List<Double[]>> samplesHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session = sqlSessionFactory.openSession();
+        FeatureMapper featureMapper = session.getMapper(FeatureMapper.class);
+        try {
+            List<Feature> features = featureMapper.fetchAllLiverFeatures();
+            List<Double[]> samples = new ArrayList<>(features.size());
+            features.forEach(feature -> {
+                Double[] sample = feature.featureVector();
+                samples.add(sample);
+            });
+            /*List<Double[]> samples = features.stream().flatMap(feature -> {
+                Double[] sample = feature.featureVector();
+                return Stream.of(sample);
+            }).collect(Collectors.toList());*/
+            samplesHandler.handle(samples);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            samplesHandler.handle(null);
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 samplesHandler.handle(null);
@@ -184,7 +230,7 @@ public class FeatureDao {
                     }
                 });
             }
-        });
+        });*/
     }
 
     /**
@@ -192,7 +238,25 @@ public class FeatureDao {
      * @param samplesHandler
      */
     public void fetchLungFeatureSamples(Handler<List<Double[]>> samplesHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session = sqlSessionFactory.openSession();
+        FeatureMapper featureMapper = session.getMapper(FeatureMapper.class);
+        try {
+            List<Feature> features = featureMapper.fetchAllLungFeatures();
+            List<Double[]> samples = new ArrayList<>(features.size());
+            features.forEach(feature -> {
+                Double[] sample = feature.featureVector();
+                samples.add(sample);
+            });
+            /*List<Double[]> samples = features.stream().flatMap(feature -> {
+                Double[] sample = feature.featureVector();
+                return Stream.of(sample);
+            }).collect(Collectors.toList());*/
+            samplesHandler.handle(samples);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            samplesHandler.handle(null);
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 samplesHandler.handle(null);
@@ -246,6 +310,6 @@ public class FeatureDao {
                     }
                 });
             }
-        });
+        });*/
     }
 }

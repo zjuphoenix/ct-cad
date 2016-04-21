@@ -8,9 +8,15 @@ import com.zju.lab.ct.utils.Constants;
 import com.zju.lab.ct.verticle.LesionRecognitionVerticle;
 import com.zju.lab.ct.verticle.WebServer;
 import io.vertx.core.Vertx;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Set;
 
 /**
@@ -44,5 +50,16 @@ public class BeanIOCModule extends AbstractModule{
         /*verticle*/
         bind(WebServer.class).in(Singleton.class);
         bind(LesionRecognitionVerticle.class).in(Singleton.class);
+        /*mybatis*/
+        try {
+            String resource = "mybatis-config.xml";
+            Reader reader = Resources.getResourceAsReader(resource);
+            SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
+            SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(reader);
+            bind(SqlSessionFactory.class).toInstance(sqlSessionFactory);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+
     }
 }

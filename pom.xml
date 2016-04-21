@@ -29,6 +29,8 @@
         <json.version>20160212</json.version>
         <opencv.version>1.1</opencv.version>
         <guice.version>4.0</guice.version>
+        <guava.version>18.0</guava.version>
+        <mybatis.version>3.2.8</mybatis.version>
     </properties>
 
     <dependencies>
@@ -63,6 +65,11 @@
             <artifactId>vertx-unit</artifactId>
             <version>${vertx.version}</version>
         </dependency>
+        <!--<dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-rx-java</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>-->
 
         <!--reflection-->
         <dependency>
@@ -71,11 +78,11 @@
             <version>${reflections.version}</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql-connector.version}</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>org.xerial</groupId>
@@ -184,6 +191,19 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>${guice.version}</version>
+        </dependency>
+
+        <!--guava-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <!--mybatis-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${mybatis.version}</version>
         </dependency>
     </dependencies>
 

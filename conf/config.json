@@ -10,6 +10,6 @@
   "segmentation" : "segmentation",
   "work.pool.size" :10,
   "instance.num" :1,
-  "work.model" : false,
-  "multi-threaded.model" : true
+  "work.model" : true,
+  "multi-threaded.model" : false
 }

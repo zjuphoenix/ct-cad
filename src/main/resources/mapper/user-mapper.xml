@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zju.lab.ct.mapper.UserMapper">
+    <select id="queryUsers" resultType="UserDto" useCache="false">
+        select USER.USERNAME,USER_ROLES.ROLE from USER inner join USER_ROLES on USER.USERNAME = USER_ROLES.USERNAME
+    </select>
+
+    <select id="queryUserByUsername" resultType="String" useCache="false">
+        select USERNAME from USER where USERNAME = #{username} limit 1
+    </select>
+
+    <insert id="addUser">
+        insert into USER (USERNAME, PASSWORD, PASSWORD_SALT) values (#{username}, #{password}, #{password_salt})
+    </insert>
+
+    <insert id="addUserRole">
+        insert into USER_ROLES (USERNAME, ROLE) values (#{username}, #{role})
+    </insert>
+
+    <delete id="deleteUser" parameterType="String">
+        delete from USER where USERNAME = #{username}
+    </delete>
+
+    <delete id="deleteUserRole" parameterType="String">
+        delete from USER_ROLES where USERNAME = #{username}
+    </delete>
+</mapper>

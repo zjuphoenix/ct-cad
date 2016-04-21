@@ -2,9 +2,11 @@ package com.zju.lab.ct.dao;
 
 import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
+import com.zju.lab.ct.mapper.UserMapper;
 import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.model.ResponseMsg;
 import com.zju.lab.ct.model.User;
+import com.zju.lab.ct.model.UserDto;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.SQLUtil;
 import io.vertx.core.Handler;
@@ -14,6 +16,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
@@ -28,8 +32,11 @@ public class UserDao {
 
     protected JDBCClient sqlite = null;
 
+    private SqlSessionFactory sqlSessionFactory;
+
     @Inject
-    public UserDao(Vertx vertx) throws UnsupportedEncodingException {
+    public UserDao(Vertx vertx, SqlSessionFactory sqlSessionFactory) throws UnsupportedEncodingException {
+        this.sqlSessionFactory = sqlSessionFactory;
         JsonObject sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))
                 .put("driver_class", AppUtil.configStr("db.driver_class"));
@@ -40,8 +47,17 @@ public class UserDao {
      * 获取所有用户
      * @param done
      */
-    public void getUsers(Handler<ResponseMsg> done){
-        sqlite.getConnection(connection -> {
+    public void getUsers(Handler<ResponseMsg<List<UserDto>>> done){
+        SqlSession session = sqlSessionFactory.openSession();
+        UserMapper userMapper = session.getMapper(UserMapper.class);
+        try {
+            List<UserDto> userDtos = userMapper.queryUsers();
+            ResponseMsg<List<UserDto>> users = new ResponseMsg(userDtos);
+            done.handle(users);
+        } catch (Exception e) {
+            done.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.succeeded()){
                 SQLConnection conn = connection.result();
                 conn.query("select USER.USERNAME,USER_ROLES.ROLE from USER inner join USER_ROLES on USER.USERNAME = USER_ROLES.USERNAME", res -> {
@@ -58,7 +74,7 @@ public class UserDao {
             else{
                 done.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
             }
-        });
+        });*/
     }
 
     /**
@@ -67,7 +83,32 @@ public class UserDao {
      * @param done
      */
     public void addUser(User user, Handler<ResponseMsg<String>> done){
-        sqlite.getConnection(connection -> {
+        String username = user.getUsername();
+        String password = user.getPassword();
+        String role = user.getRole();
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+            LOGGER.error("Username and Password cannot be null");
+            done.handle(new ResponseMsg<String>(HttpCode.BAD_REQUEST, "Username and Password cannot be null"));
+        }
+        String salt = AppUtil.computeHash(username, null, "SHA-512");
+        String passwordHash = AppUtil.computeHash(password, salt, "SHA-512");
+        SqlSession session = sqlSessionFactory.openSession(false);
+        UserMapper userMapper = session.getMapper(UserMapper.class);
+        try {
+            String uname = userMapper.queryUserByUsername(username);
+            if (uname!=null){
+                done.handle(new ResponseMsg<String>(HttpCode.BAD_REQUEST, "username has already registered"));
+            }
+            else{
+                userMapper.addUser(username, passwordHash, salt);
+                userMapper.addUserRole(username, role);
+                done.handle(new ResponseMsg("add user success"));
+            }
+            session.commit();
+        } catch (Exception e) {
+            done.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.succeeded()){
                 String username = user.getUsername();
                 String password = user.getPassword();
@@ -117,7 +158,7 @@ public class UserDao {
             else{
                 done.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
             }
-        });
+        });*/
     }
 
     /**
@@ -129,7 +170,19 @@ public class UserDao {
         if (StringUtils.isEmpty(username)){
             done.handle(new ResponseMsg(HttpCode.BAD_REQUEST, "username must not be null or empty"));
         }
-        sqlite.getConnection(sqlConnectionAsyncResult -> {
+        else{
+            SqlSession session = sqlSessionFactory.openSession(false);
+            UserMapper userMapper = session.getMapper(UserMapper.class);
+            try {
+                userMapper.deleteUser(username);
+                userMapper.deleteUserRole(username);
+                session.commit();
+                done.handle(new ResponseMsg<String>("delete user success"));
+            } catch (Exception e) {
+                done.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+            }
+        }
+        /*sqlite.getConnection(sqlConnectionAsyncResult -> {
             if (sqlConnectionAsyncResult.succeeded()){
                 SQLConnection sqlConnection = sqlConnectionAsyncResult.result();
                 sqlConnection.updateWithParams("delete from USER where USERNAME = ?", new JsonArray().add(username), updateResultAsyncResult -> {
@@ -153,6 +206,6 @@ public class UserDao {
             else{
                 done.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, sqlConnectionAsyncResult.cause().getMessage()));
             }
-        });
+        });*/
     }
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC
+        "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 配置别名 -->
+    <typeAliases>
+        <typeAlias type="com.zju.lab.ct.mapper.RecordMapper" alias="RecordMapper" />
+        <typeAlias type="com.zju.lab.ct.mapper.CTMapper" alias="CTMapper" />
+        <typeAlias type="com.zju.lab.ct.mapper.FeatureMapper" alias="FeatureMapper" />
+        <typeAlias type="com.zju.lab.ct.mapper.UserMapper" alias="UserMapper" />
+        <typeAlias type="com.zju.lab.ct.model.Record" alias="Record" />
+        <typeAlias type="com.zju.lab.ct.model.CTImage" alias="CTImage" />
+        <typeAlias type="com.zju.lab.ct.model.Feature" alias="Feature" />
+        <typeAlias type="com.zju.lab.ct.model.UserDto" alias="UserDto" />
+    </typeAliases>
+
+    <!-- 配置环境变量 -->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC" />
+            <dataSource type="POOLED">
+                <property name="driver" value="org.sqlite.JDBC" />
+                <property name="url" value="jdbc:sqlite:db/cad" />
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 配置mappers -->
+    <mappers>
+        <mapper resource="mapper/record-mapper.xml" />
+        <mapper resource="mapper/ct-mapper.xml" />
+        <mapper resource="mapper/feature-mapper.xml" />
+        <mapper resource="mapper/user-mapper.xml" />
+    </mappers>
+
+</configuration>

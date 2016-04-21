@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zju.lab.ct.mapper.RecordMapper">
+    <select id="queryRecords" resultType="Record" useCache="false">
+		select * from record
+        <if test="username!=null and username!='' ">
+            where username = #{username}
+        </if>
+		limit #{rowCount} offset #{offset}
+    </select>
+
+    <select id="queryRecordsCount" resultType="Integer" useCache="false">
+        select count(*) from record
+    </select>
+
+    <select id="queryRecordsCountByUsername" resultType="Integer" useCache="false">
+        select count(*) from record where username = #{username}
+    </select>
+
+    <insert id="addRecord" parameterType="Record" useGeneratedKeys="true" keyProperty="id">
+        insert into record(username) values(#{username})
+    </insert>
+
+    <update id="updateRecord">
+        update record set diagnosis = #{diagnosis} where id = #{id}
+    </update>
+
+    <delete id="deleteRecord" parameterType="int">
+        delete from record where id = #{id}
+    </delete>
+</mapper>

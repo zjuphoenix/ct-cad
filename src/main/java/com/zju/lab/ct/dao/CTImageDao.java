@@ -2,8 +2,11 @@ package com.zju.lab.ct.dao;
 
 import com.google.inject.Inject;
 import com.zju.lab.ct.annotations.HandlerDao;
+import com.zju.lab.ct.mapper.CTMapper;
+import com.zju.lab.ct.mapper.RecordMapper;
 import com.zju.lab.ct.model.CTImage;
 import com.zju.lab.ct.model.HttpCode;
+import com.zju.lab.ct.model.Record;
 import com.zju.lab.ct.model.ResponseMsg;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.JDBCConnUtil;
@@ -14,6 +17,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
@@ -28,16 +34,29 @@ import java.util.List;
 public class CTImageDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(CTImageDao.class);
 
-    protected JDBCClient sqlite = null;
-    private JsonObject sqliteConfig = null;
+    /*protected JDBCClient sqlite = null;
+    private JsonObject sqliteConfig = null;*/
     private Vertx vertx;
+    private SqlSessionFactory sqlSessionFactory;
     @Inject
-    public CTImageDao(Vertx vertx) throws UnsupportedEncodingException {
+    public CTImageDao(Vertx vertx, SqlSessionFactory sqlSessionFactory) throws UnsupportedEncodingException {
+        this.sqlSessionFactory = sqlSessionFactory;
         this.vertx = vertx;
-        this.sqliteConfig = new JsonObject()
+        /*this.sqliteConfig = new JsonObject()
                 .put("url", AppUtil.configStr("db.url"))
                 .put("driver_class", AppUtil.configStr("db.driver_class"));
-        this.sqlite = JDBCClient.createShared(vertx, sqliteConfig, "ct");
+        this.sqlite = JDBCClient.createShared(vertx, sqliteConfig, "ct");*/
+    }
+
+    private JsonObject ct2Json(CTImage ctImage){
+        JsonObject obj = new JsonObject();
+        obj.put("id", obj.getInteger("id"));
+        obj.put("type", obj.getString("type"));
+        obj.put("file", obj.getString("file"));
+        obj.put("diagnosis", obj.getString("diagnosis"));
+        obj.put("recordId", obj.getInteger("recordId"));
+        obj.put("recognition", obj.getInteger("recognition"));
+        return obj;
     }
 
     /**
@@ -46,7 +65,22 @@ public class CTImageDao {
      * @param ctImageHandler
      */
     public void getCTImageById(int id, Handler<ResponseMsg<JsonObject>> ctImageHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession();
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            CTImage ctImage = ctMapper.queryCTById(id);
+            if (ctImage != null){
+                ctImageHandler.handle(new ResponseMsg<JsonObject>(ct2Json(ctImage)));
+            }
+            else{
+                LOGGER.error("ctimage not found!");
+                ctImageHandler.handle(new ResponseMsg<JsonObject>(HttpCode.NOT_FOUND, "ctimage not found!"));
+            }
+        } catch (Exception e) {
+            LOGGER.error("get ctimage by id failed!");
+            ctImageHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 ctImageHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
@@ -71,7 +105,7 @@ public class CTImageDao {
                     JDBCConnUtil.close(conn);
                 });
             }
-        });
+        });*/
     }
 
     /**
@@ -80,7 +114,31 @@ public class CTImageDao {
      * @param responseMsgHandler
      */
     public void deleteCTImageById(int id, Handler<ResponseMsg<String>> responseMsgHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession(false);
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            CTImage ctImage = ctMapper.queryCTById(id);
+            if (ctImage != null){
+                ctMapper.deleteCTById(id);
+                responseMsgHandler.handle(new ResponseMsg("delete ct success!"));
+                String image = AppUtil.getUploadDir()+File.separator+ctImage.getFile();
+                File file = new File(image);
+                if (file.exists()){
+                    file.delete();
+                }
+                else{
+                    LOGGER.error("ct file {} is not existing!", image);
+                }
+            }
+            else{
+                responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.NOT_FOUND, "ct not found"));
+            }
+            session.commit();
+        } catch (Exception e) {
+            LOGGER.error("delete ctimage by id {} failed!", id, e);
+            responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
@@ -122,7 +180,7 @@ public class CTImageDao {
                     }
                 });
             }
-        });
+        });*/
     }
 
     /**
@@ -131,7 +189,7 @@ public class CTImageDao {
      * @param ctsHandler
      */
     public void getCTImages(int recordId, Handler<ResponseMsg<JsonObject>> ctsHandler){
-        sqlite.getConnection(connection -> {
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
@@ -152,7 +210,7 @@ public class CTImageDao {
                     JDBCConnUtil.close(conn);
                 });
             }
-        });
+        });*/
     }
 
     /**
@@ -161,7 +219,16 @@ public class CTImageDao {
      * @param responseMsgHandler
      */
     public void addCTImage(CTImage ctImage, Handler<ResponseMsg<String>> responseMsgHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession();
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            ctMapper.addCT(ctImage);
+            responseMsgHandler.handle(new ResponseMsg<String>("upload ct success"));
+        } catch (Exception e) {
+            LOGGER.info("insert ct {} failed!", ctImage.getFile());
+            responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
@@ -181,7 +248,7 @@ public class CTImageDao {
                     responseMsgHandler.handle(new ResponseMsg<String>("upload ct success"));
                 }
             });
-        });
+        });*/
     }
 
     /**
@@ -191,7 +258,28 @@ public class CTImageDao {
      * @param responseMsgHandler
      */
     public void addCTImages(String username, List<CTImage> ctImages, Handler<ResponseMsg<String>> responseMsgHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession(false);
+        RecordMapper recordMapper = session.getMapper(RecordMapper.class);
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            Record record = new Record();
+            record.setUsername(username);
+            recordMapper.addRecord(record);
+            int recordId = record.getId();
+            for (CTImage ctImage : ctImages){
+                ctImage.setRecordId(recordId);
+                ctMapper.addCT(ctImage);
+                int id = ctImage.getId();
+                LOGGER.info("ctId:{}", id);
+                JsonObject data = new JsonObject().put("file", ctImage.getFile()).put("id", id);
+                vertx.eventBus().send(EventBusMessage.GLOBAL_FEATURE_RECOGNITION, data.encode());
+            }
+            session.commit();
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            responseMsgHandler.handle(new ResponseMsg<String>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.succeeded()) {
                 LOGGER.info("start receive file");
                 SQLConnection conn = connection.result();
@@ -228,7 +316,7 @@ public class CTImageDao {
                 LOGGER.error("connection sqlite failed!");
                 responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
             }
-        });
+        });*/
     }
 
     /**
@@ -238,9 +326,19 @@ public class CTImageDao {
      * @param responseMsgHandler
      */
     public void updateCTImage(int id, String diagnosis, Handler<ResponseMsg<String>> responseMsgHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession();
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            ctMapper.updateCTDiagnosis(id, diagnosis);
+            LOGGER.info("update ct success!");
+            responseMsgHandler.handle(new ResponseMsg("update ct diagnosis success!"));
+        } catch (Exception e) {
+            LOGGER.error("update ct diagnosis failed!");
+            responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
-               /*System.out.println("connection sqlite failed!");*/
+               *//*System.out.println("connection sqlite failed!");*//*
                 LOGGER.error("connection sqlite failed!");
                 responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
                 return;
@@ -258,7 +356,7 @@ public class CTImageDao {
                 }
                 JDBCConnUtil.close(conn);
             });
-        });
+        });*/
     }
 
     /**
@@ -269,7 +367,20 @@ public class CTImageDao {
      * @param ctsHandler
      */
     public void getCTImagesByPage(int recordId, int pageIndex, int pageSize, Handler<ResponseMsg<JsonObject>> ctsHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession(false);
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            List<CTImage> ctImages = ctMapper.queryCTs(recordId, (pageIndex-1)*pageSize, pageSize);
+            int sum = ctMapper.queryCTCountByRecordId(recordId);
+            session.commit();
+            JsonObject res = new JsonObject();
+            res.put("ct", ctImages);
+            res.put("count", sum);
+            ctsHandler.handle(new ResponseMsg<JsonObject>(res));
+        } catch (Exception e) {
+            ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
@@ -301,7 +412,7 @@ public class CTImageDao {
                     }
                 });
             }
-        });
+        });*/
     }
 
     /**
@@ -311,7 +422,17 @@ public class CTImageDao {
      * @param responseMsgHandler
      */
     public void updateRecognition(int id, int recognition, Handler<ResponseMsg<String>> responseMsgHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession();
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            ctMapper.updateCTRecognition(id, recognition);
+            LOGGER.info("update ct recognition success!");
+            responseMsgHandler.handle(new ResponseMsg("update ct recognition success!"));
+        } catch (Exception e) {
+            LOGGER.error("update ct recognition failed!");
+            responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 responseMsgHandler.handle(new ResponseMsg(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
@@ -330,7 +451,7 @@ public class CTImageDao {
                 }
                 JDBCConnUtil.close(conn);
             });
-        });
+        });*/
     }
 
     /**
@@ -339,7 +460,25 @@ public class CTImageDao {
      * @param ctsHandler
      */
     public void getCancerImages(int recordId, Handler<ResponseMsg<JsonObject>> ctsHandler){
-        sqlite.getConnection(connection -> {
+        SqlSession session= sqlSessionFactory.openSession();
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            List<CTImage> ctImages = ctMapper.queryCancerCT(recordId);
+            JsonObject jsonObject = new JsonObject();
+            if (ctImages != null && !ctImages.isEmpty()){
+                jsonObject.put("status", 1);
+                jsonObject.put("cancer",ctImages);
+                ctsHandler.handle(new ResponseMsg<JsonObject>(jsonObject));
+            }
+            else{
+                jsonObject.put("status", -1);
+                ctsHandler.handle(new ResponseMsg<JsonObject>(jsonObject));
+            }
+        } catch (Exception e) {
+            LOGGER.error("query ct data failed!");
+            ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+        /*sqlite.getConnection(connection -> {
             if (connection.failed()){
                 LOGGER.error("connection sqlite failed!");
                 ctsHandler.handle(new ResponseMsg<JsonObject>(HttpCode.INTERNAL_SERVER_ERROR, connection.cause().getMessage()));
@@ -370,6 +509,6 @@ public class CTImageDao {
                     JDBCConnUtil.close(conn);
                 });
             }
-        });
+        });*/
     }
 }

@@ -8,6 +8,9 @@ public class Record {
     private String diagnosis;
     private String username;
 
+    public Record() {
+    }
+
     public Record(int id, String diagnosis, String username) {
         this.id = id;
         this.diagnosis = diagnosis;

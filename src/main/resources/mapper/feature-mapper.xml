@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zju.lab.ct.mapper.FeatureMapper">
+    <select id="fetchAllLiverFeatures" resultType="Feature" useCache="false">
+        select * from feature
+    </select>
+
+    <select id="fetchAllLungFeatures" resultType="Feature" useCache="false">
+        select * from lungfeature
+    </select>
+
+    <insert id="addLiverFeature" parameterType="Feature">
+        insert into feature(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,label) values(#{f1},#{f2},#{f3},#{f4},#{f5},#{f6},#{f7},#{f8},#{f9},#{f10},#{f11},#{f12},#{f13},#{f14},#{f15},#{f16},#{f17},#{f18},#{f19},#{f20},#{f21},#{f22},#{f23},#{f24},#{f25},#{f26},#{label})
+    </insert>
+
+    <insert id="addLungFeature" parameterType="Feature">
+        insert into lungfeature(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,label) values(#{f1},#{f2},#{f3},#{f4},#{f5},#{f6},#{f7},#{f8},#{f9},#{f10},#{f11},#{f12},#{f13},#{f14},#{f15},#{f16},#{f17},#{f18},#{f19},#{f20},#{f21},#{f22},#{f23},#{f24},#{f25},#{f26},#{label})
+    </insert>
+</mapper>

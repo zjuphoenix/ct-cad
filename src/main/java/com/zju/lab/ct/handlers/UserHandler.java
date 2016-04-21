@@ -7,6 +7,7 @@ import com.zju.lab.ct.annotations.RouteMethod;
 import com.zju.lab.ct.dao.UserDao;
 import com.zju.lab.ct.model.HttpCode;
 import com.zju.lab.ct.model.User;
+import com.zju.lab.ct.model.UserDto;
 import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.utils.RoleMap;
 import com.zju.lab.ct.utils.SQLUtil;
@@ -43,16 +44,16 @@ public class  UserHandler {
             userDao.getUsers(responseMsg -> {
                 HttpServerResponse response = ctx.response();
                 //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
-                if (responseMsg.getContent() instanceof List){
+                if (responseMsg.getCode().getCode() == HttpCode.OK.getCode()){
                     JsonArray array = new JsonArray();
-                    List<JsonObject> jsonObjects = (List<JsonObject>) responseMsg.getContent();
-                    jsonObjects.forEach(object -> {
-                        array.add(object);
+                    List<UserDto> userDtos = responseMsg.getContent();
+                    userDtos.forEach(userDto -> {
+                        array.add(new JsonObject().put("USERNAME", userDto.getUSERNAME()).put("ROLE", userDto.getROLE()));
                     });
                     response.setChunked(true).setStatusCode(responseMsg.getCode().getCode()).end(array.encode());
                 }
                 else{
-                    response.setChunked(true).setStatusCode(responseMsg.getCode().getCode()).end(responseMsg.getContent().toString());
+                    response.setChunked(true).setStatusCode(responseMsg.getCode().getCode()).end(responseMsg.getError());
                 }
             });
         };
