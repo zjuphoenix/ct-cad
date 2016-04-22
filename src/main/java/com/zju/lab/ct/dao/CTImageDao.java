@@ -16,6 +16,7 @@ import com.zju.lab.ct.utils.AppUtil;
 import com.zju.lab.ct.verticle.EventBusMessage;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -136,13 +137,13 @@ public class CTImageDao {
      * @param recordId
      * @param ctsHandler
      */
-    public void getCTImages(int recordId, Handler<ResponseMsg<List<JsonObject>>> ctsHandler){
+    public void getCTImages(int recordId, Handler<ResponseMsg<JsonObject>> ctsHandler){
         SqlSession session= sqlSessionFactory.openSession();
         CTMapper ctMapper = session.getMapper(CTMapper.class);
         try {
             List<CTImage> ctImages = ctMapper.queryAllCTsByRecordId(recordId);
-            List<JsonObject> cts = ctImages.stream().flatMap(ctImage -> Stream.of(ct2Json(ctImage))).collect(Collectors.toList());
-            ctsHandler.handle(new ResponseMsg<>(cts));
+            //List<JsonObject> cts = ctImages.stream().flatMap(ctImage -> Stream.of(ct2Json(ctImage))).collect(Collectors.toList());
+            ctsHandler.handle(new ResponseMsg<>(new JsonObject().put("ct",ctImages)));
         } catch (Exception e) {
             ctsHandler.handle(new ResponseMsg<>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
             LOGGER.error(e.getMessage(), e);

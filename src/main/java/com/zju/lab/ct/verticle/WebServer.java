@@ -1,6 +1,5 @@
 package com.zju.lab.ct.verticle;
 
-import com.google.inject.Injector;
 import com.zju.lab.ct.annotations.RouteHandler;
 import com.zju.lab.ct.annotations.RouteMapping;
 import com.zju.lab.ct.annotations.RouteMethod;

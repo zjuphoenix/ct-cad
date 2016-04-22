@@ -31,6 +31,7 @@
         <guice.version>4.0</guice.version>
         <guava.version>18.0</guava.version>
         <mybatis.version>3.2.8</mybatis.version>
+        <rxjava.version>1.0.10</rxjava.version>
     </properties>
 
     <dependencies>
@@ -204,6 +205,12 @@
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <version>${mybatis.version}</version>
+        </dependency>
+        <!--rxjava-->
+        <dependency>
+            <groupId>io.reactivex</groupId>
+            <artifactId>rxjava</artifactId>
+            <version>${rxjava.version}</version>
         </dependency>
     </dependencies>
 
