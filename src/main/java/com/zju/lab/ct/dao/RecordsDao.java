@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wuhaitao on 2016/3/23.
@@ -39,6 +40,7 @@ public class RecordsDao {
         this.sqlSessionFactory = sqlSessionFactory;
         this.cache = CacheBuilder.newBuilder()
                 .maximumSize(100)
+                .expireAfterAccess(60, TimeUnit.SECONDS)
                 .build(new CacheLoader<RecordPageKey, JsonObject>() {
                     @Override
                     public JsonObject load(RecordPageKey recordPageKey) throws Exception {

@@ -78,7 +78,7 @@
             <!-- mini logo for sidebar mini 50x50 pixels -->
             <span class="logo-mini"><b>CT</b></span>
             <!-- logo for regular state and mobile devices -->
-            <span class="logo-lg"><b>CT图像系统</b></span>
+            <span class="logo-lg"><b>肝脏CT图像病变检测与识别系统</b></span>
         </a>
         <!-- Header Navbar: style can be found in header.less -->
         <nav class="navbar navbar-static-top" role="navigation">
@@ -181,10 +181,16 @@
                         <i class="fa fa-fw fa-user"></i> <span>用户管理</span>
                     </a>
                 </li>
-                <li ng-if="main.isPermitted('algorithm')">
-                    <a href="#/algorithm">
-                        <i class="fa fa-fw fa-gears"></i> <span>算法模型生成</span>
+                <li ng-if="main.isPermitted('algorithm')" class="treeview">
+                    <a href="#">
+                        <i class="fa fa-fw fa-gears"></i>
+                        <span>算法模型生成</span>
+                        <i class="fa fa-angle-left pull-right"></i>
                     </a>
+                    <ul class="treeview-menu">
+                        <li><a href="#/detection_algorithm"><i class="fa fa-circle-o"></i>异常检测算法</a></li>
+                        <li><a href="#/algorithm"><i class="fa fa-circle-o"></i>局部病变识别算法</a></li>
+                    </ul>
                 </li>
             </ul>
         </section>
@@ -209,6 +215,7 @@
         <script src="app/ct/gallery.js"></script>
         <script src="app/algorithm/algorithm.js"></script>
         <script src="app/segmentation/segmentation.js"></script>
+        <script src="app/ct/detection.js"></script>
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer">

@@ -3,10 +3,6 @@ package com.zju.lab.ct;
 import com.zju.lab.ct.framework.subject.VertxPublishSubject;
 import com.zju.lab.ct.shutdown.ShutdownHookHub;
 import com.zju.lab.ct.utils.AppUtil;
-import com.zju.lab.ct.ioc.IOCAppContext;
-import com.zju.lab.ct.verticle.LesionRecognitionVerticle;
-import com.zju.lab.ct.verticle.WebServer;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
@@ -25,6 +21,7 @@ public class App {
         options.setWorkerPoolSize(AppUtil.configInt("work.pool.size"));
         options.setMetricsOptions(new DropwizardMetricsOptions().setEnabled(true));
         options.setMaxEventLoopExecuteTime(Long.MAX_VALUE);
+        options.setMaxWorkerExecuteTime(Long.MAX_VALUE);
 
         Vertx vertx = Vertx.vertx(options);
         VertxPublishSubject vertxPublishSubject = new VertxPublishSubject();

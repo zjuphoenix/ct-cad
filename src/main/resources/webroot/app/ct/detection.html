@@ -1,0 +1,52 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        异常检测
+    </h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">CT图像异常检测结果</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>CT类型</th>
+                            <th>CT图像</th>
+                            <th>肝脏分割</th>
+                            <th>检测结果</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="ctImage in ctImages">
+                            <td>{{ctImage.id}}</td>
+                            <td>{{ctImage.type}}</td>
+                            <td>
+                                <img width="100px" height="100px" ng-src="{{ctImage.img}}"/>
+                            </td>
+                            <td>
+                                <img width="100px" height="100px" ng-src="{{ctImage.liver}}"/>
+                            </td>
+                            <td>{{ctImage.recognition}}</td>
+                            <td>
+                                <a ng-if="main.isPermitted('cad')" class="btn btn-info" ng-click="goCAD(ctImage)" target="_blank">辅助诊断</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <tm-pagination conf="paginationConf"></tm-pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /.content -->

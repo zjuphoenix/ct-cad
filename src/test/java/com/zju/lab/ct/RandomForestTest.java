@@ -309,7 +309,7 @@ public class RandomForestTest {
         });
     }
 
-    //@Test
+    @Test
     public void testRecognition(){
         try {
             //实例化ObjectInputStream对象
@@ -319,7 +319,7 @@ public class RandomForestTest {
                 //读取对象people,反序列化
                 RandomForest p = (RandomForest) ois.readObject();
                 ImageFeature imageFeature = new ImageFeature();
-                String fileName = "E:/graduation/data/Chen_Xiao_Bo/IMG-0001-00012.jpg";
+                String fileName = "E:/graduation/data/Hu_Yao_Zhen/IMG-0002-00004.jpg";
                 Segmentation segmentation = new Segmentation();
                 Object[] objects = segmentation.getLiverMask(1,fileName,150,250);
                 MWNumericArray res = (MWNumericArray)objects[0];
@@ -341,7 +341,7 @@ public class RandomForestTest {
                     newFile.delete();
                 }
                 newFile.createNewFile();
-                ImageIO.write(bi, "jpg", newFile);
+                ImageIO.write(bi, "bmp", newFile);
                 double[] feature = imageFeature.getFeature(bi,0,0,511,511);
                 int type = p.predictType(feature);
                 LOGGER.info("global feature recognition:{}",type);
@@ -355,6 +355,54 @@ public class RandomForestTest {
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    //@Test
+    public void testCompare() throws IOException {
+        File file = new File(AppUtil.getSegmentationDir()+File.separator+"segmentation.jpg");
+        BufferedImage bi = ImageIO.read(file);
+        String fileName = "E:/graduation/data/Chen_Xiao_Bo/IMG-0001-00008seg.jpg";
+        file = new File(fileName);
+        BufferedImage bi2 = ImageIO.read(file);
+        int[][] matrix = new int[512][512];
+        System.out.println("bi:");
+        for(int i= 0 ; i < 512 ; i++){
+            for(int j = 0 ; j < 512; j++){
+                int rgb = bi.getRGB(i, j);
+                /*应为使用getRGB(i,j)获取的该点的颜色值是ARGB，
+                而在实际应用中使用的是RGB，所以需要将ARGB转化成RGB，
+                即bufImg.getRGB(i, j) & 0xFFFFFF。*/
+                int r = (rgb & 0xff0000) >> 16;
+                int g = (rgb & 0xff00) >> 8;
+                int b = (rgb & 0xff);
+                int gray = (int)(r * 0.3 + g * 0.59 + b * 0.11);    //计算灰度值
+                matrix[i][j]=gray;
+            }
+        }
+        System.out.println();
+        System.out.println("---------------------------------------------");
+        int[][] matrix2 = new int[512][512];
+        System.out.println("bi2:");
+        for(int i= 0 ; i < 512 ; i++){
+            for(int j = 0 ; j < 512; j++){
+                int rgb = bi2.getRGB(i, j);
+                /*应为使用getRGB(i,j)获取的该点的颜色值是ARGB，
+                而在实际应用中使用的是RGB，所以需要将ARGB转化成RGB，
+                即bufImg.getRGB(i, j) & 0xFFFFFF。*/
+                int r = (rgb & 0xff0000) >> 16;
+                int g = (rgb & 0xff00) >> 8;
+                int b = (rgb & 0xff);
+                int gray = (int)(r * 0.3 + g * 0.59 + b * 0.11);    //计算灰度值
+                matrix2[i][j]=gray;
+            }
+        }
+        int error = 0;
+        for(int i= 0 ; i < 512 ; i++){
+            for(int j = 0 ; j < 512; j++){
+                error+=Math.abs(matrix[i][j]-matrix2[i][j]);
+            }
+        }
+        System.out.println(error);
     }
 
     //@Test
@@ -425,7 +473,7 @@ public class RandomForestTest {
         }
     }
 
-    @Test
+    //@Test
     public void testSegmentedRecognition(){
         try {
             //实例化ObjectInputStream对象

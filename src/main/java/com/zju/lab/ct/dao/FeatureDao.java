@@ -145,4 +145,25 @@ public class FeatureDao {
             samplesHandler.handle(null);
         }
     }
+
+    /**
+     * 从肝脏全局特征数据表feature中拉取所有数据，用于算法模型训练
+     * @param samplesHandler
+     */
+    public void fetchLiverGlobalFeatureSamples(Handler<List<Double[]>> samplesHandler){
+        SqlSession session = sqlSessionFactory.openSession();
+        FeatureMapper featureMapper = session.getMapper(FeatureMapper.class);
+        try {
+            List<Feature> features = featureMapper.fetchAllLiverGlobalFeatures();
+            List<Double[]> samples = new ArrayList<>(features.size());
+            features.forEach(feature -> {
+                Double[] sample = feature.featureVector();
+                samples.add(sample);
+            });
+            samplesHandler.handle(samples);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            samplesHandler.handle(null);
+        }
+    }
 }

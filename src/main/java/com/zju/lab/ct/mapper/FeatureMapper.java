@@ -11,5 +11,7 @@ public interface FeatureMapper {
     List<Feature> fetchAllLiverFeatures() throws Exception;
     List<Feature> fetchAllLungFeatures() throws Exception;
     void addLiverFeature(Feature feature) throws Exception;
+    void addLiverGlobalFeature(Feature feature) throws Exception;
     void addLungFeature(Feature feature) throws Exception;
+    List<Feature> fetchAllLiverGlobalFeatures() throws Exception;
 }

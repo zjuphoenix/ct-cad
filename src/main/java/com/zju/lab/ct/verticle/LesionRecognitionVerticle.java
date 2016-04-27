@@ -233,11 +233,6 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
                         break;
                     }
                 }
-                if (DataStructureUtil.checkAllZero(matrix)){
-                    ctImageDao.updateRecognition(id, 1, stringResponseMsg -> {
-
-                    });
-                }
                 int height = matrix.length;
                 int width = matrix[0].length;
                 BufferedImage bi = ImageIO.read(ctfile);
@@ -262,12 +257,61 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
                 ctImageDao.updateRecognition(id, type, stringResponseMsg -> {
 
                 });
+                File newFile = new File(AppUtil.getSegmentationDir()+File.separator+params.getString("file"));
+                if (newFile.exists()){
+                    newFile.delete();
+                }
+                newFile.createNewFile();
+                ImageIO.write(bi, "bmp", newFile);
             } catch (MWException e) {
                 LOGGER.error(e.getMessage(), e);
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
 
+        });
+
+        /*肝脏全局特征识别算法训练消息订阅*/
+        eventBus.consumer(EventBusMessage.GLOBAL_ALGORITHM_MODEL_GENERATE).handler(message -> {
+            LOGGER.info("liver global algorithm generate message");
+            RandomForest randomforest = new RandomForest(50, 2);
+            featureDao.fetchLiverGlobalFeatureSamples(samples -> {
+                if (samples == null){
+                    LOGGER.error("cannot get liver global feature samples!");
+                    message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get liver global feature samples!");
+                }
+                else {
+                    try {
+                        randomforest.createForest(samples);
+                        LOGGER.info("Liver Global Feature RandomForest Algorithm finished!");
+                        //实例化ObjectOutputStream对象
+                        ObjectOutputStream oos = null;
+                        try {
+                            File file = new File("conf/GlobalFeatureRecognition");
+                            if (file.exists()){
+                                file.delete();
+                                file.createNewFile();
+                            }
+                            oos = new ObjectOutputStream(new FileOutputStream("conf/GlobalFeatureRecognition"));
+                            //将对象写入文件
+                            oos.writeObject(randomforest);
+                            oos.flush();
+                            oos.close();
+                            message.reply("liver global feature recognition model create success!");
+                        } catch (IOException e) {
+                            LOGGER.error(e.getMessage(), e);
+                            message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                        }
+                    } catch (InterruptedException e) {
+                        LOGGER.error(e.getMessage(), e);
+                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                    } catch (ExecutionException e) {
+                        LOGGER.error(e.getMessage(), e);
+                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                    }
+
+                }
+            });
         });
     }
 }

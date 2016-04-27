@@ -168,4 +168,33 @@ public class RecognitionHandler {
             });
         };
     }
+
+    /**
+     * 生成算法识别模型
+     * /api/ct/generateRecognitionModel
+     * POST {
+     *     "type":int,
+     *     "treeNum":int
+     * }
+     * @return
+     */
+    @RouteMapping(value = "/generateDetectionModel", method = RouteMethod.POST)
+    public Handler<RoutingContext> generateRandomForestDetectionModel(){
+        return ctx -> {
+            JsonObject data = ctx.getBodyAsJson();
+            int treeNum = data.getInteger("treeNum");
+            JsonObject json = new JsonObject();
+            json.put("treeNum", treeNum);
+            ctx.vertx().eventBus().send(EventBusMessage.GLOBAL_ALGORITHM_MODEL_GENERATE, json.encode(), ar -> {
+                if (ar.succeeded()) {
+                    LOGGER.info("generate abnormal detection model success!");
+                    ctx.response().end((String)ar.result().body());
+                }
+                else{
+                    LOGGER.info("generate abnormal detection model failed!");
+                    ctx.response().setStatusCode(HttpCode.INTERNAL_SERVER_ERROR.getCode()).end();
+                }
+            });
+        };
+    }
 }

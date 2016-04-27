@@ -93,21 +93,4 @@ public class UploadHandler {
         };
     }
 
-    /**
-     * /upload/:image
-     * GET
-     * 获取上传的图片在前端显示，这里的图片不包含在静态资源里，而是通过web请求获取
-     * @return
-     */
-    @RouteMapping(method = RouteMethod.GET, value = "/:image")
-    public Handler<RoutingContext> getCTImage(){
-        return  ctx -> {
-            String image = ctx.request().getParam("image");
-            HttpServerResponse response = ctx.response();
-            //response.putHeader("Access-Control-Allow-Origin", "*").putHeader("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS").putHeader("Access-Control-Max-Age", "60");
-            response.setChunked(true);
-            response.sendFile(AppUtil.getUploadDir() + File.separator + image);
-        };
-    }
-
 }

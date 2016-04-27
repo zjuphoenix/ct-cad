@@ -120,6 +120,14 @@ public class CTImageDao {
                 else{
                     LOGGER.error("ct file {} is not existing!", image);
                 }
+                image = AppUtil.getSegmentationDir()+File.separator+ctImage.getFile();
+                file = new File(image);
+                if (file.exists()){
+                    file.delete();
+                }
+                else{
+                    LOGGER.error("segmentation ct file {} is not existing!", image);
+                }
             }
             else{
                 responseMsgHandler.handle(new ResponseMsg<>(HttpCode.NOT_FOUND, "ct not found"));
