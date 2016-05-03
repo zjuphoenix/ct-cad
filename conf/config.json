@@ -6,6 +6,8 @@
   "mysql.url" : "jdbc:mysql://10.13.81.181:3306/cad?characterEncoding=UTF-8",
   "db.driver_class" : "org.sqlite.JDBC",
   "mysql.driver_class" : "com.mysql.jdbc.Driver",
+  "mysql.user" : "root",
+  "mysql.password" : "gaotie508",
 
   "upload.path" : "upload",
   "segmentation" : "segmentation",

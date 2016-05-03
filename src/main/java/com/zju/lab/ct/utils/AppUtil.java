@@ -1,20 +1,13 @@
 package com.zju.lab.ct.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zju.lab.ct.algorithm.randomforest.RandomForest;
 import com.zju.lab.ct.algorithm.randomforest.RandomForestDecorator;
-import com.zju.lab.ct.mapper.FeatureMapper;
-import com.zju.lab.ct.model.Feature;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -26,7 +19,6 @@ import org.apache.spark.mllib.tree.model.RandomForestModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -71,14 +63,14 @@ public class AppUtil {
 
     public static JDBCClient getJdbcClient(Vertx vertx) {
         JsonObject config = new JsonObject()
-                .put("url", AppUtil.configStr("db.url"))
-                .put("driver_class", AppUtil.configStr("db.driver_class"));
+                .put("url", AppUtil.configStr("mysql.url"))
+                .put("driver_class", AppUtil.configStr("mysql.driver_class"));
 
-        String username = AppUtil.configStr("db.user");
+        String username = AppUtil.configStr("mysql.user");
         if (StringUtils.isNotBlank(username))
             config.put("user", username);
 
-        String password = AppUtil.configStr("db.password");
+        String password = AppUtil.configStr("mysql.password");
         if (StringUtils.isNotBlank(password))
             config.put("password", password);
 
