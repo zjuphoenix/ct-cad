@@ -2,12 +2,27 @@ package com.zju.lab.ct.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zju.lab.ct.algorithm.randomforest.RandomForest;
+import com.zju.lab.ct.algorithm.randomforest.RandomForestDecorator;
+import com.zju.lab.ct.mapper.FeatureMapper;
+import com.zju.lab.ct.model.Feature;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.mllib.linalg.Vector;
+import org.apache.spark.mllib.linalg.Vectors;
+import org.apache.spark.mllib.regression.LabeledPoint;
+import org.apache.spark.mllib.tree.configuration.Strategy;
+import org.apache.spark.mllib.tree.model.RandomForestModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
@@ -15,6 +30,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -108,28 +125,61 @@ public class AppUtil {
         return AppUtil.configStr("segmentation");
     }
 
-    public static RandomForest getRandomForestModel() throws IOException, ClassNotFoundException {
+    public static RandomForestDecorator getRandomForestModel() throws IOException, ClassNotFoundException {
         //实例化ObjectInputStream对象
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("RandomForest")));
-        //读取对象people,反序列化
-        RandomForest randomForest = (RandomForest) ois.readObject();
-        return randomForest;
+        //读取对象,反序列化
+        RandomForestModel randomForest = (RandomForestModel) ois.readObject();
+        return new RandomForestDecorator(randomForest);
     }
 
-    public static RandomForest getLungRandomForestModel() throws IOException, ClassNotFoundException {
+    public static RandomForestDecorator getLungRandomForestModel() throws IOException, ClassNotFoundException {
         //实例化ObjectInputStream对象
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("RandomForest_Lung")));
-        //读取对象people,反序列化
-        RandomForest randomForest = (RandomForest) ois.readObject();
-        return randomForest;
+        //读取对象,反序列化
+        RandomForestModel randomForest = (RandomForestModel) ois.readObject();
+        return new RandomForestDecorator(randomForest);
     }
 
-    public static RandomForest getGlobalFeatureRecognitionModel() throws IOException, ClassNotFoundException {
+    public static RandomForestDecorator getGlobalFeatureRecognitionModel() throws IOException, ClassNotFoundException {
         //实例化ObjectInputStream对象
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("GlobalFeatureRecognition")));
-        //读取对象people,反序列化
-        RandomForest randomForest = (RandomForest) ois.readObject();
-        return randomForest;
+        //读取对象,反序列化
+        RandomForestModel randomForest = (RandomForestModel) ois.readObject();
+        return new RandomForestDecorator(randomForest);
+    }
+
+    public static RandomForestModel generateModel(String appName, List<Double[]> samples, int numClass, int treeNum){
+        SparkConf sparkConf = new SparkConf();
+        if (config.getBoolean("spark.local.pattern")){
+            sparkConf.setMaster("local").setAppName(appName);
+        }
+        else{
+            sparkConf.setMaster(config.getString("spark.master"))
+                    .setAppName(appName)
+                    .set("spark.driver.host", config.getString("spark.driver.host"))
+                    .set("spark.driver.port", config.getString("spark.driver.port"));
+        }
+        /*SparkConf sparkConf = new SparkConf().setMaster("local").setAppName(appName);*/
+        JavaSparkContext jsc = new JavaSparkContext(sparkConf);
+        List<LabeledPoint> labeledPoints = new ArrayList<>(samples.size());
+        double[] d = new double[26];
+        samples.forEach(sample -> {
+            for (int i = 0; i < 26; i++) {
+                d[i] = sample[i];
+            }
+            Vector vector = Vectors.dense(d);
+            LabeledPoint labeledPoint = new LabeledPoint(sample[26]-1, vector);
+            labeledPoints.add(labeledPoint);
+        });
+        JavaRDD<LabeledPoint> rdd = jsc.parallelize(labeledPoints);
+        Strategy strategy = Strategy.defaultStrategy("Classification");
+        strategy.setNumClasses(numClass);
+        String featureSubsetStrategy = "auto";
+        int seed = 12345;
+        RandomForestModel model = org.apache.spark.mllib.tree.RandomForest.trainClassifier(rdd.rdd(),strategy,treeNum,featureSubsetStrategy,seed);
+        jsc.stop();
+        return model;
     }
 
 }

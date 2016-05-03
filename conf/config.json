@@ -8,16 +8,19 @@
   "mysql.driver_class" : "com.mysql.jdbc.Driver",
 
   "upload.path" : "upload",
+  "segmentation" : "segmentation",
 
   "RandomForest" : "conf/RandomForest",
   "RandomForest_Lung" : "conf/RandomForest_Lung",
   "GlobalFeatureRecognition" : "conf/GlobalFeatureRecognition",
 
-  "segmentation" : "segmentation",
-
   "work.pool.size" :10,
   "instance.num" :1,
   "work.model" : true,
-  "multi-threaded.model" : false
+  "multi-threaded.model" : false,
 
+  "spark.local.pattern" : true,
+  "spark.master" : "spark://10.13.81.185:7077",
+  "spark.driver.host" : "10.110.89.56",
+  "spark.driver.port" : "50128"
 }

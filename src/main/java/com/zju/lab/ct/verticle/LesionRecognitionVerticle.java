@@ -3,8 +3,10 @@ package com.zju.lab.ct.verticle;
 import com.google.inject.Inject;
 import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
+import com.zju.lab.ct.App;
 import com.zju.lab.ct.algorithm.feature.ImageFeature;
 import com.zju.lab.ct.algorithm.randomforest.RandomForest;
+import com.zju.lab.ct.algorithm.randomforest.RandomForestDecorator;
 import com.zju.lab.ct.algorithm.segmentation.Point;
 import com.zju.lab.ct.algorithm.segmentation.RegionGrowing;
 import com.zju.lab.ct.dao.CTImageDao;
@@ -18,6 +20,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.spark.mllib.tree.model.RandomForestModel;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +51,12 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
         /*lesion recognition*/
         LOGGER.info("lesion recognition process handler......");
         ImageFeature imageFeature = new ImageFeature();
-        RandomForest randomforest_Liver = AppUtil.getRandomForestModel();
+        RandomForestDecorator randomforest_Liver = AppUtil.getRandomForestModel();
         JsonObject liverLesion = ConfigUtil.getLiverLesion();
-        RandomForest randomforest_Lung = AppUtil.getLungRandomForestModel();
+        RandomForestDecorator randomforest_Lung = AppUtil.getLungRandomForestModel();
         JsonObject lungLesion = ConfigUtil.getLungLesion();
 
-        RandomForest randomforest_Global = AppUtil.getGlobalFeatureRecognitionModel();
+        RandomForestDecorator randomforest_Global = AppUtil.getGlobalFeatureRecognitionModel();
         seeds = new ArrayList<>(2);
         seeds.add(new Point(150,250));
         seeds.add(new Point(100,250));
@@ -109,38 +112,31 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
         /*肝脏病变识别算法训练消息订阅*/
         eventBus.consumer(EventBusMessage.LIVER_ALGORITHM_MODEL_GENERATE).handler(message -> {
             LOGGER.info("liver algorithm generate message");
-            RandomForest randomforest = new RandomForest(50, 4);
+            /*RandomForest randomforest = new RandomForest(50, 4);*/
             featureDao.fetchLiverFeatureSamples(samples -> {
                 if (samples == null){
                     LOGGER.error("cannot get liver samples!");
                     message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get liver samples!");
                 }
                 else {
+                    RandomForestModel randomforest = AppUtil.generateModel("LesionRecognition", samples, 5, 50);
+                        /*randomforest.createForest(samples);*/
+                    LOGGER.info("Liver RandomForest Algorithm finished!");
+                    //实例化ObjectOutputStream对象
+                    ObjectOutputStream oos = null;
                     try {
-                        randomforest.createForest(samples);
-                        LOGGER.info("Liver RandomForest Algorithm finished!");
-                        //实例化ObjectOutputStream对象
-                        ObjectOutputStream oos = null;
-                        try {
-                            File file = new File("conf/RandomForest");
-                            if (file.exists()){
-                                file.delete();
-                                file.createNewFile();
-                            }
-                            oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest"));
-                            //将对象写入文件
-                            oos.writeObject(randomforest);
-                            oos.flush();
-                            oos.close();
-                            message.reply("liver lesion recognition model create success!");
-                        } catch (IOException e) {
-                            LOGGER.error(e.getMessage(), e);
-                            message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                        File file = new File("conf/RandomForest");
+                        if (file.exists()){
+                            file.delete();
+                            file.createNewFile();
                         }
-                    } catch (InterruptedException e) {
-                        LOGGER.error(e.getMessage(), e);
-                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
-                    } catch (ExecutionException e) {
+                        oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest"));
+                        //将对象写入文件
+                        oos.writeObject(randomforest);
+                        oos.flush();
+                        oos.close();
+                        message.reply("liver lesion recognition model create success!");
+                    } catch (IOException e) {
                         LOGGER.error(e.getMessage(), e);
                         message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
                     }
@@ -151,38 +147,31 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
         /*肺部病变识别算法训练消息订阅*/
         eventBus.consumer(EventBusMessage.LUNG_ALGORITHM_MODEL_GENERATE).handler(message -> {
             LOGGER.info("lung algorithm generate message");
-            RandomForest randomforest = new RandomForest(50, 4);
+            /*RandomForest randomforest = new RandomForest(50, 4);*/
             featureDao.fetchLungFeatureSamples(samples -> {
                 if (samples == null){
                     LOGGER.error("cannot get lung samples!");
                     message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get lung samples!");
                 }
                 else {
+                    RandomForestModel randomforest = AppUtil.generateModel("LungLesionRecognition", samples, 3, 50);
+                        /*randomforest.createForest(samples);*/
+                    LOGGER.info("Lung RandomForest Algorithm finished!");
+                    //实例化ObjectOutputStream对象
+                    ObjectOutputStream oos = null;
                     try {
-                        randomforest.createForest(samples);
-                        LOGGER.info("Lung RandomForest Algorithm finished!");
-                        //实例化ObjectOutputStream对象
-                        ObjectOutputStream oos = null;
-                        try {
-                            File file = new File("conf/RandomForest_Lung");
-                            if (file.exists()){
-                                file.delete();
-                                file.createNewFile();
-                            }
-                            oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest_Lung"));
-                            //将对象写入文件
-                            oos.writeObject(randomforest);
-                            oos.flush();
-                            oos.close();
-                            message.reply("lung lesion recognition model create success!");
-                        } catch (IOException e) {
-                            LOGGER.error(e.getMessage(), e);
-                            message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                        File file = new File("conf/RandomForest_Lung");
+                        if (file.exists()){
+                            file.delete();
+                            file.createNewFile();
                         }
-                    } catch (InterruptedException e) {
-                        LOGGER.error(e.getMessage(), e);
-                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
-                    } catch (ExecutionException e) {
+                        oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest_Lung"));
+                        //将对象写入文件
+                        oos.writeObject(randomforest);
+                        oos.flush();
+                        oos.close();
+                        message.reply("lung lesion recognition model create success!");
+                    } catch (IOException e) {
                         LOGGER.error(e.getMessage(), e);
                         message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
                     }
@@ -274,38 +263,31 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
         /*肝脏全局特征识别算法训练消息订阅*/
         eventBus.consumer(EventBusMessage.GLOBAL_ALGORITHM_MODEL_GENERATE).handler(message -> {
             LOGGER.info("liver global algorithm generate message");
-            RandomForest randomforest = new RandomForest(50, 2);
+            /*RandomForest randomforest = new RandomForest(50, 2);*/
             featureDao.fetchLiverGlobalFeatureSamples(samples -> {
                 if (samples == null){
                     LOGGER.error("cannot get liver global feature samples!");
                     message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), "cannot get liver global feature samples!");
                 }
                 else {
+                    /*randomforest.createForest(samples);*/
+                    RandomForestModel randomforest = AppUtil.generateModel("GlobalFeatureRecognition", samples, 2, 50);
+                    LOGGER.info("Liver Global Feature RandomForest Algorithm finished!");
+                    //实例化ObjectOutputStream对象
+                    ObjectOutputStream oos = null;
                     try {
-                        randomforest.createForest(samples);
-                        LOGGER.info("Liver Global Feature RandomForest Algorithm finished!");
-                        //实例化ObjectOutputStream对象
-                        ObjectOutputStream oos = null;
-                        try {
-                            File file = new File("conf/GlobalFeatureRecognition");
-                            if (file.exists()){
-                                file.delete();
-                                file.createNewFile();
-                            }
-                            oos = new ObjectOutputStream(new FileOutputStream("conf/GlobalFeatureRecognition"));
-                            //将对象写入文件
-                            oos.writeObject(randomforest);
-                            oos.flush();
-                            oos.close();
-                            message.reply("liver global feature recognition model create success!");
-                        } catch (IOException e) {
-                            LOGGER.error(e.getMessage(), e);
-                            message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
+                        File file = new File("conf/GlobalFeatureRecognition");
+                        if (file.exists()){
+                            file.delete();
+                            file.createNewFile();
                         }
-                    } catch (InterruptedException e) {
-                        LOGGER.error(e.getMessage(), e);
-                        message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
-                    } catch (ExecutionException e) {
+                        oos = new ObjectOutputStream(new FileOutputStream("conf/GlobalFeatureRecognition"));
+                        //将对象写入文件
+                        oos.writeObject(randomforest);
+                        oos.flush();
+                        oos.close();
+                        message.reply("liver global feature recognition model create success!");
+                    } catch (IOException e) {
                         LOGGER.error(e.getMessage(), e);
                         message.fail(HttpCode.INTERNAL_SERVER_ERROR.getCode(), e.getMessage());
                     }
