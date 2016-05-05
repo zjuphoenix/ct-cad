@@ -183,7 +183,7 @@ userModule.constant('ENDPOINT_URI', '/api')
     })
     .controller('CancerCtrl', function($scope, $state, $stateParams, $http, ENDPOINT_URI, UPLOAD_FILE){
         $scope.recordId = $stateParams.recordId;
-        $http.get(ENDPOINT_URI+'/ct/cancer/'+$scope.recordId)
+        $http.get(ENDPOINT_URI+'/ct/abnormal/'+$scope.recordId)
             .then(function(result){
                 $scope.ctImages = result.data.cancer;
                 $scope.ctImages.forEach(function(r, i) {

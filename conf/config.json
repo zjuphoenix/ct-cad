@@ -21,7 +21,7 @@
   "work.model" : true,
   "multi-threaded.model" : false,
 
-  "spark.local.pattern" : true,
+  "spark.local.pattern" : false,
   "spark.master" : "spark://10.13.81.185:7077",
   "spark.driver.host" : "10.110.89.56",
   "spark.driver.port" : "50128"

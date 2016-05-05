@@ -22,8 +22,14 @@ public class RandomForest implements Serializable{
 
     public void createForest(List<Double[]> dataSet) throws InterruptedException, ExecutionException {
         int size = dataSet.size();
-        ExecutorService executor = Executors.newFixedThreadPool(size);
-        List<Callable<CARTTree>> tasks = new ArrayList<>(size);
+        ExecutorService executor = null;
+        if (treeNum <= 50){
+            executor = Executors.newFixedThreadPool(treeNum);
+        }
+        else{
+            executor = Executors.newFixedThreadPool(50);
+        }
+        List<Callable<CARTTree>> tasks = new ArrayList<>(treeNum);
         for (int i = 0; i < treeNum; i++) {
             tasks.add(new Callable<CARTTree>() {
 
@@ -45,6 +51,24 @@ public class RandomForest implements Serializable{
             trees.add(future.get());
         }
         executor.shutdown();
+        /*int size = dataSet.size();
+        List<Double[]> sampleSet = new ArrayList<>(size);
+        Random r = new Random();
+        for (int j = 0; j < size; j++) {
+            sampleSet.add(dataSet.get(r.nextInt(size)));
+        }
+        CARTTree tree = new CARTTree(sampleSet);
+        tree.createTree();
+        trees.add(tree);
+        for (int i = 1; i < treeNum; i++) {
+            r = new Random();
+            for (int j = 0; j < size; j++) {
+                sampleSet.set(j, dataSet.get(r.nextInt(size)));
+            }
+            tree = new CARTTree(sampleSet);
+            tree.createTree();
+            trees.add(tree);
+        }*/
     }
 
     public int predictType(double[] sample){

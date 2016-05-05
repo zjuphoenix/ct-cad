@@ -123,7 +123,7 @@ public class CTImageHandler {
      * 返回类型JsonObject key:{cancer}
      * @return
      */
-    @RouteMapping(method = RouteMethod.GET, value = "/cancer/:recordId")
+    @RouteMapping(method = RouteMethod.GET, value = "/abnormal/:recordId")
     public Handler<RoutingContext> getCancerImages(){
         return  ctx -> {
             int recordId = Integer.parseInt(ctx.request().getParam("recordId"));
