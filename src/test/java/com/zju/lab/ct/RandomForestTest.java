@@ -29,7 +29,7 @@ import java.util.Map;
 public class RandomForestTest {
     private static Logger LOGGER = LoggerFactory.getLogger(RandomForestTest.class);
 
-    //@Test
+    @Test
     public void test(){
         Connection c = null;
         Statement stmt = null;
@@ -90,14 +90,14 @@ public class RandomForestTest {
         LOGGER.info("-----------------");
         try {
             //实例化ObjectOutputStream对象
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest"));
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("conf/RandomForest1"));
             //将对象写入文件
             oos.writeObject(randomforest);
             oos.flush();
             oos.close();
 
             //实例化ObjectInputStream对象
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("conf/RandomForest"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("conf/RandomForest1"));
 
             try {
                 //读取对象people,反序列化
@@ -166,7 +166,7 @@ public class RandomForestTest {
         try {
 
             //实例化ObjectInputStream对象
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("conf/RandomForest"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("conf/RandomForest1"));
 
             try {
                 //读取对象people,反序列化
@@ -309,7 +309,7 @@ public class RandomForestTest {
         });
     }
 
-    @Test
+    //@Test
     public void testRecognition(){
         try {
             //实例化ObjectInputStream对象
