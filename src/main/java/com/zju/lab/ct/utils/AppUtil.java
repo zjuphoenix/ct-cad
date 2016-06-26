@@ -1,6 +1,7 @@
 package com.zju.lab.ct.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zju.lab.ct.algorithm.randomforest.RandomForest;
 import com.zju.lab.ct.algorithm.randomforest.RandomForestDecorator;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxException;
@@ -125,6 +126,14 @@ public class AppUtil {
         return new RandomForestDecorator(randomForest);
     }
 
+    public static RandomForest getRandomForestModel2() throws IOException, ClassNotFoundException {
+        //实例化ObjectInputStream对象
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("RandomForest")));
+        //读取对象,反序列化
+        RandomForest randomForest = (RandomForest) ois.readObject();
+        return randomForest;
+    }
+
     public static RandomForestDecorator getLungRandomForestModel() throws IOException, ClassNotFoundException {
         //实例化ObjectInputStream对象
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("RandomForest_Lung")));
@@ -139,6 +148,14 @@ public class AppUtil {
         //读取对象,反序列化
         RandomForestModel randomForest = (RandomForestModel) ois.readObject();
         return new RandomForestDecorator(randomForest);
+    }
+
+    public static RandomForest getGlobalFeatureRecognitionModel2() throws IOException, ClassNotFoundException {
+        //实例化ObjectInputStream对象
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(config.getString("GlobalFeatureRecognition")));
+        //读取对象,反序列化
+        RandomForest randomForest = (RandomForest) ois.readObject();
+        return randomForest;
     }
 
     public static RandomForestModel generateModel(String appName, List<Double[]> samples, int numClass, int treeNum){

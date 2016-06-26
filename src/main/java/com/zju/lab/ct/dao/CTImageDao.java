@@ -151,7 +151,7 @@ public class CTImageDao {
         try {
             List<CTImage> ctImages = ctMapper.queryAllCTsByRecordId(recordId);
             //List<JsonObject> cts = ctImages.stream().flatMap(ctImage -> Stream.of(ct2Json(ctImage))).collect(Collectors.toList());
-            ctsHandler.handle(new ResponseMsg<>(new JsonObject().put("ct",ctImages)));
+            ctsHandler.handle(new ResponseMsg<>(new JsonObject().put("ct",ctImages).put("count", ctImages.size())));
         } catch (Exception e) {
             ctsHandler.handle(new ResponseMsg<>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
             LOGGER.error(e.getMessage(), e);
@@ -197,8 +197,8 @@ public class CTImageDao {
                 ctMapper.addCT(ctImage);
                 int id = ctImage.getId();
                 LOGGER.info("ctId:{}", id);
-                JsonObject data = new JsonObject().put("file", ctImage.getFile()).put("id", id);
-                vertx.eventBus().send(EventBusMessage.GLOBAL_FEATURE_RECOGNITION, data.encode());
+                /*JsonObject data = new JsonObject().put("file", ctImage.getFile()).put("id", id);
+                vertx.eventBus().send(EventBusMessage.GLOBAL_FEATURE_RECOGNITION, data.encode());*/
             }
             session.commit();
             cache.invalidateAll();
@@ -263,6 +263,33 @@ public class CTImageDao {
             responseMsgHandler.handle(new ResponseMsg<>("update ct recognition success!"));
         } catch (Exception e) {
             LOGGER.error("update ct recognition failed!");
+            responseMsgHandler.handle(new ResponseMsg<>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+        }
+    }
+
+    /**
+     * 获取CT图像全局特征识别结果
+     * @param id
+     * @param responseMsgHandler
+     */
+    public void getRecognition(int id, Handler<ResponseMsg<String>> responseMsgHandler){
+        SqlSession session= sqlSessionFactory.openSession();
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        try {
+            CTImage ctImage = ctMapper.queryCTById(id);
+            String recognition = "";
+            if (ctImage.getRecognition().equals("1")){
+                recognition = "正常";
+            }
+            else if(ctImage.getRecognition().equals("2")){
+                recognition = "异常";
+            }
+            else{
+                recognition = "尚未检测成功";
+            }
+            responseMsgHandler.handle(new ResponseMsg<>(recognition));
+        } catch (Exception e) {
+            LOGGER.error("get ct recognition failed!");
             responseMsgHandler.handle(new ResponseMsg<>(HttpCode.INTERNAL_SERVER_ERROR, e.getMessage()));
         }
     }

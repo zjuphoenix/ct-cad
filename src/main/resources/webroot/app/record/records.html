@@ -26,13 +26,13 @@
                         <tbody>
                         <tr ng-repeat="record in records">
                             <td>{{record.id}}</td>
-                            <td class="datahide">{{record.diagnosis}}</td>
+                            <td title="{{record.diagnosis}}" class="datahide">{{record.diagnosis}}</td>
                             <td>{{record.username}}</td>
                             <td>
                                 <a class="btn btn-primary" ng-click="goRecordDetail(record)" target="_blank">详情</a>
                                 <a class="btn btn-success" href="#/gallery/{{record.id}}" target="_blank">CT预览</a>
                                 <a class="btn btn-danger" ng-click="deleteRecord(record.id)">删除</a>
-                                <a class="btn btn-warning" ng-if="main.isPermitted('cad')" href="#/detection/{{record.id}}">异常检测</a>
+                                <a class="btn btn-warning" ng-if="main.isPermitted('cad')" ng-click="detection(record.id)">异常检测</a>
                                 <a class="btn btn-info" ng-click="report(record)">生成报表</a>
                             </td>
                         </tr>

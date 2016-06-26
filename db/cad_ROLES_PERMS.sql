@@ -1,0 +1,11 @@
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('admin', 'manage_user');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('admin', 'cad');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('admin', 'ct');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('doctor', 'cad');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('doctor', 'anonymous');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('doctor', 'ct');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('patient', 'upload');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('patient', 'ct');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('admin', 'delete_ct');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('doctor', 'delete_ct');
+INSERT INTO cad.ROLES_PERMS (ROLE, PERM) VALUES ('admin', 'algorithm');

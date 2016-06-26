@@ -10,4 +10,5 @@ public class EventBusMessage {
     public static String LIVER_SEGMENTATION = "liver.segmentation";
     public static String GLOBAL_FEATURE_RECOGNITION = "global.feature.recognition";
     public static String GLOBAL_ALGORITHM_MODEL_GENERATE = "global.algorithm.model.generate";
+    public static String ABNORMAL_DETECTION = "abnormal.detection";
 }

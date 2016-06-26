@@ -5,6 +5,7 @@ import com.mathworks.toolbox.javabuilder.MWNumericArray;
 import com.zju.lab.ct.algorithm.feature.ImageFeature;
 import com.zju.lab.ct.algorithm.randomforest.CARTTree;
 import com.zju.lab.ct.algorithm.randomforest.RandomForest;
+import com.zju.lab.ct.algorithm.randomforest.RandomForestDecorator;
 import com.zju.lab.ct.algorithm.randomforest.TreeNode;
 import com.zju.lab.ct.utils.AppUtil;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import java.util.Map;
 public class RandomForestTest {
     private static Logger LOGGER = LoggerFactory.getLogger(RandomForestTest.class);
 
-    @Test
+    //@Test
     public void test(){
         Connection c = null;
         Statement stmt = null;
@@ -483,7 +484,7 @@ public class RandomForestTest {
                 //读取对象people,反序列化
                 RandomForest p = (RandomForest) ois.readObject();
                 ImageFeature imageFeature = new ImageFeature();
-                String fileName = "E:/graduation/data/Chen_Xiao_Bo/IMG-0001-00008seg.jpg";
+                String fileName = "E:/graduation/data/Zhang_Lian_Mu/IMG-0003-00023javaseg.jpg";
                 File file = new File(fileName);
                 BufferedImage bi = ImageIO.read(file);
                 double[] feature = imageFeature.getFeature(bi,0,0,511,511);
@@ -506,7 +507,7 @@ public class RandomForestTest {
         }
     }
 
-    /*public static void main(String[] args) {
+    public void main() {
         Connection c = null;
         Statement stmt = null;
         RandomForest randomforest = null;
@@ -580,5 +581,26 @@ public class RandomForestTest {
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
-    }*/
+    }
+
+    @Test
+    public void testSparkGlobalRandomForest() throws IOException, ClassNotFoundException {
+        RandomForestDecorator randomforest_Global = AppUtil.getGlobalFeatureRecognitionModel();
+        ImageFeature imageFeature = new ImageFeature();
+        //String fileName = "E:/graduation/data/Zhang_Lian_Mu/IMG-0003-00028javaseg.jpg";
+        String fileName = "E:/graduation/javatrain/normal/1.jpg";
+        File file = new File(fileName);
+        BufferedImage bi = ImageIO.read(file);
+        double[] feature = imageFeature.getFeature(bi,0,0,511,511);
+        for (int i = 0; i < feature.length; i++) {
+            System.out.print(feature[i]);
+            System.out.print(",");
+        }
+        System.out.println();
+        int type = randomforest_Global.predictType(feature);
+        Map<Integer,Integer> map = randomforest_Global.predictResult(feature);
+        System.out.println(map.toString());
+        LOGGER.info("global feature recognition:{}",type);
+    }
+
 }

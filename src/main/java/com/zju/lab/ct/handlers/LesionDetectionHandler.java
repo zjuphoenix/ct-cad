@@ -12,12 +12,46 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import org.json.JSONObject;
 import java.io.File;
+import java.util.Random;
 
 /**
  * Created by wuhaitao on 2016/3/30.
  */
 @RouteHandler("/api/ct")
 public class LesionDetectionHandler {
+
+    @RouteMapping(value = "/detection", method = RouteMethod.POST)
+    public Handler<RoutingContext> detection() {
+        return ctx -> {
+            /*
+            * data:{
+            * "id":int
+            * }
+            * */
+            /*try {
+                Thread.sleep(new Random().nextInt(3000));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            ctx.response().end("异常");*/
+            JsonObject data = ctx.getBodyAsJson();
+            ctx.vertx().eventBus().send(EventBusMessage.ABNORMAL_DETECTION, data.encode(), ar -> {
+                if (ar.succeeded()) {
+                    JSONObject res = new JSONObject((String)ar.result().body());
+                    int code = res.getInt("code");
+                    if (code == HttpCode.OK.getCode()){
+                        ctx.response().end(res.getString("recognition"));
+                    }
+                    else{
+                        ctx.response().setStatusCode(code).end(res.getString("error"));
+                    }
+                }
+                else{
+                    ctx.response().setStatusCode(HttpCode.BAD_REQUEST.getCode()).end();
+                }
+            });
+        };
+    }
 
     @RouteMapping(value = "/segmentation", method = RouteMethod.POST)
     public Handler<RoutingContext> predictLesionType() {

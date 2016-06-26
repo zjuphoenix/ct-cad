@@ -51,12 +51,14 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
         /*lesion recognition*/
         LOGGER.info("lesion recognition process handler......");
         ImageFeature imageFeature = new ImageFeature();
-        RandomForestDecorator randomforest_Liver = AppUtil.getRandomForestModel();
+        //RandomForestDecorator randomforest_Liver = AppUtil.getRandomForestModel();
+        RandomForest randomforest_Liver = AppUtil.getRandomForestModel2();
         JsonObject liverLesion = ConfigUtil.getLiverLesion();
         RandomForestDecorator randomforest_Lung = AppUtil.getLungRandomForestModel();
         JsonObject lungLesion = ConfigUtil.getLungLesion();
 
-        RandomForestDecorator randomforest_Global = AppUtil.getGlobalFeatureRecognitionModel();
+        //RandomForestDecorator randomforest_Global = AppUtil.getGlobalFeatureRecognitionModel();
+        RandomForest randomforest_Global = AppUtil.getGlobalFeatureRecognitionModel2();
         seeds = new ArrayList<>(2);
         seeds.add(new Point(150,250));
         seeds.add(new Point(100,250));
@@ -257,7 +259,6 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
-
         });
 
         /*肝脏全局特征识别算法训练消息订阅*/
@@ -294,6 +295,71 @@ public class LesionRecognitionVerticle extends AbstractVerticle {
 
                 }
             });
+        });
+
+        /*肝脏CT异常检测*/
+        eventBus.consumer(EventBusMessage.ABNORMAL_DETECTION).handler(message -> {
+            LOGGER.info("receive abnormal detection message:"+message.body());
+            JSONObject params = new JSONObject((String)message.body());
+            String image = AppUtil.getUploadDir() + File.separator + params.getString("file");
+            File ctfile = new File(image);
+            String fileName = ctfile.getAbsolutePath();
+            int id = params.getInt("id");
+            Segmentation segmentation = null;
+            try {
+                segmentation = new Segmentation();
+                Object[] objects = null;
+                int[][] matrix = null;
+                /*遍历所有种子点，直到找到能通过该种子点分割出肝脏区域为止，当图像掩模矩阵matrix不是全零时说明已经分割出肝脏*/
+                for (Point seed : seeds){
+                    objects = segmentation.getLiverMask(1,fileName,seed.x,seed.y);
+                    MWNumericArray res = (MWNumericArray)objects[0];
+                    matrix = (int[][])res.toIntArray();
+                    if (!DataStructureUtil.checkAllZero(matrix)){
+                        break;
+                    }
+                }
+                int height = matrix.length;
+                int width = matrix[0].length;
+                BufferedImage bi = ImageIO.read(ctfile);
+                boolean flag = false;
+                for(int i= 0 ; i < height ; i++){
+                    for(int j = 0 ; j < width; j++){
+                        int gray = matrix[j][i];
+                        if (gray==0) {
+                            bi.setRGB(i, j, 0);
+                        }
+                        else{
+                            flag = true;
+                        }
+                    }
+                }
+                int type = 1;
+                if (flag){
+                    double[] feature = imageFeature.getFeature(bi,0,0,bi.getWidth()-1,bi.getHeight()-1);
+                    type = randomforest_Global.predictType(feature);
+                }
+                LOGGER.info("global feature recognition:{}",type);
+                ctImageDao.updateRecognition(id, type, stringResponseMsg -> {
+
+                });
+                File newFile = new File(AppUtil.getSegmentationDir()+File.separator+params.getString("file"));
+                if (newFile.exists()){
+                    newFile.delete();
+                }
+                newFile.createNewFile();
+                ImageIO.write(bi, "bmp", newFile);
+                JsonObject obj = new JsonObject();
+                obj.put("code", HttpCode.OK.getCode());
+                obj.put("recognition", type == 1 ? "正常" : "异常");
+                message.reply(obj.encode());
+            } catch (MWException | IOException e) {
+                LOGGER.error(e.getMessage(), e);
+                JsonObject obj = new JsonObject();
+                obj.put("code", HttpCode.INTERNAL_SERVER_ERROR.getCode());
+                obj.put("error", e.getMessage());
+                message.reply(obj.encode());
+            }
         });
     }
 }

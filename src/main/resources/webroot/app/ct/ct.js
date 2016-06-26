@@ -48,7 +48,7 @@ userModule.constant('ENDPOINT_URI', '/api')
             return $http.post(ENDPOINT_URI+'/ct', postData);
         };
     })
-    .controller('CTImageCtrl', function($scope, $state, $http, $stateParams, CTImageService, BASE_URI){
+    .controller('CTImageCtrl', function($scope, $state, $http, $stateParams, CTImageService, BASE_URI, ENDPOINT_URI){
         $scope.id = $stateParams.id;
         $scope.diagnosis = $stateParams.diagnosis;
         $scope.username = $stateParams.username;
@@ -135,7 +135,9 @@ userModule.constant('ENDPOINT_URI', '/api')
 
         /*删除CT*/
         $scope.deleteCT = function(ctId){
-            CTImageService.deleteCT(ctId)
+            console.log('delete ct:'+ctId);
+            /*使用CTImageService.deleteCT会报方法找不到的异常?*/
+            $http.delete(ENDPOINT_URI+'/ct/'+ctId)
                 .then(function(result){
                     console.log(result.data);
                     $scope.ctImages.forEach(function(r, i) {
@@ -145,6 +147,16 @@ userModule.constant('ENDPOINT_URI', '/api')
                 },function(error){
                     console.log(error);
                 });
+            /*CTImageService.deleteCT(ctId)
+                .then(function(result){
+                    console.log(result.data);
+                    $scope.ctImages.forEach(function(r, i) {
+                        if(ctId === r.id)
+                            $scope.ctImages.splice(i, 1);
+                    });
+                },function(error){
+                    console.log(error);
+                });*/
         };
 
         /*CT图像分割*/

@@ -39,6 +39,7 @@
                             <td>{{ctImage.recognition}}</td>
                             <td>
                                 <a ng-if="main.isPermitted('cad')" class="btn btn-info" ng-click="goCAD(ctImage)" target="_blank">辅助诊断</a>
+                                <a ng-if="main.isPermitted('cad')" class="btn btn-warning" ng-click="labelGlobalFeature()">标注</a>
                             </td>
                         </tr>
                         </tbody>

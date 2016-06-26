@@ -1,20 +1,20 @@
 {
-  "web.server.port" : 8080,
+  "web.server.port" : 8888,
   "algorithm.server.port" : 8081,
 
   "db.url" : "jdbc:sqlite:db/cad",
-  "mysql.url" : "jdbc:mysql://10.13.81.181:3306/cad?characterEncoding=UTF-8",
+  "mysql.url" : "jdbc:mysql://localhost:3306/cad?characterEncoding=UTF-8",
   "db.driver_class" : "org.sqlite.JDBC",
   "mysql.driver_class" : "com.mysql.jdbc.Driver",
   "mysql.user" : "root",
-  "mysql.password" : "gaotie508",
+  "mysql.password" : "",
 
   "upload.path" : "upload",
   "segmentation" : "segmentation",
 
-  "RandomForest" : "conf/RandomForest",
+  "RandomForest" : "conf/RandomForest2",
   "RandomForest_Lung" : "conf/RandomForest_Lung",
-  "GlobalFeatureRecognition" : "conf/GlobalFeatureRecognition",
+  "GlobalFeatureRecognition" : "conf/GlobalFeatureRecognition2",
 
   "work.pool.size" :10,
   "instance.num" :1,

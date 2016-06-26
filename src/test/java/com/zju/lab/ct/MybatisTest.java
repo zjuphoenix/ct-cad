@@ -80,11 +80,19 @@ public class MybatisTest {
         }
     }
 
-    @Test
+    //@Test
     public void test3() throws Exception {
         SqlSession session= sqlSessionFactory.openSession();
         UserMapper userMapper = session.getMapper(UserMapper.class);
         List<String> perms = userMapper.queryUserPermission("admin");
         System.out.println(perms);
+    }
+
+    @Test
+    public void test4() throws Exception {
+        SqlSession session= sqlSessionFactory.openSession();
+        CTMapper ctMapper = session.getMapper(CTMapper.class);
+        CTImage ctImage = ctMapper.queryCTById(235);
+        System.out.println(ctImage.getRecognition());
     }
 }

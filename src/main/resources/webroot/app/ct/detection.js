@@ -1,7 +1,7 @@
 /**
  * Created by wuhaitao on 2016/4/26.
  */
-var detectionModule = angular.module('detection', ['ui.router']);
+var detectionModule = angular.module('detection', ['ui.router', 'ngDialog']);
 detectionModule.constant('ENDPOINT_URI', '/api')
     .constant('BASE_URI', '')
     .constant('UPLOAD_FILE', 'upload/')
@@ -13,6 +13,14 @@ detectionModule.constant('ENDPOINT_URI', '/api')
                 },*/
                 templateUrl: 'app/ct/detection.html',
                 controller: 'DetectionCtrl'
+            })
+            .state('abnormal_detection', {
+                url: '/abnormal/detection',
+                params: {
+                    'recordId':1
+                },
+                templateUrl: 'app/ct/detection.html',
+                controller: 'AbnormalDetectionCtrl'
             });
     })
     .service('CTImageService', function($http, ENDPOINT_URI){
@@ -67,6 +75,73 @@ detectionModule.constant('ENDPOINT_URI', '/api')
                 'file':ctImage.file,
                 'diagnosis':ctImage.diagnosis,
                 'recordId':ctImage.recordId
+            });
+        };
+
+        //配置分页基本参数
+        $scope.paginationConf = {
+            currentPage: 1,
+            itemsPerPage: 5,
+            pagesLength: 5
+        };
+
+        getCTImagesByPage();
+
+        /***************************************************************
+         当页码和页面记录数发生变化时监控后台查询
+         如果把currentPage和itemsPerPage分开监控的话则会触发两次后台事件。
+         ***************************************************************/
+        $scope.$watch('paginationConf.currentPage + paginationConf.itemsPerPage', getCTImagesByPage);
+    })
+    .controller('AbnormalDetectionCtrl', function($scope, $state, $stateParams, CTImageService, BASE_URI, ngDialog){
+        $scope.recordId = $stateParams.recordId;
+
+        var getCTImagesByPage = function(){
+            var postData = {
+                'recordId': parseInt($scope.recordId),
+                'pageIndex': parseInt($scope.paginationConf.currentPage),
+                'pageSize': parseInt($scope.paginationConf.itemsPerPage)
+            }
+            CTImageService.getCTImagesByPage(postData)
+                .then(function(result){
+                    $scope.ctImages = result.data.ct;
+                    $scope.ctImages.forEach(function(r, i) {
+                        if (r.recognition == 1){
+                            r.recognition = '正常';
+                        }
+                        else if(r.recognition == 2){
+                            r.recognition = '异常';
+                        }
+                        else{
+                            r.recognition = '尚未检测成功';
+                        }
+                        r.img = 'upload/'+ r.file;
+                        r.liver = 'segmentation/'+ r.file;
+                    });
+                    $scope.paginationConf.totalItems = result.data.count;
+                    /*console.log($scope.ctImages);
+                     console.log($scope.paginationConf.totalItems);*/
+                },function(error){
+                    console.log(error);
+                });
+        };
+
+        /*进入辅助诊断界面*/
+        $scope.goCAD = function(ctImage){
+            console.log(ctImage);
+            $state.go('cad', {
+                'id':ctImage.id,
+                'type':ctImage.type,
+                'file':ctImage.file,
+                'diagnosis':ctImage.diagnosis,
+                'recordId':ctImage.recordId
+            });
+        };
+
+        $scope.labelGlobalFeature = function(){
+            ngDialog.open({ template: '<div>标注成功</div>',
+                className: 'ngdialog-theme-plain',
+                plain:true//template为html字符串
             });
         };
 
